@@ -9,5 +9,14 @@
 		"directory": ".svelte-kit/cloudflare"
 	},
 	"workers_dev": true,
-	"preview_urls": true
+	"preview_urls": true,
+	"d1_databases": [
+		{
+			// Run: wrangler d1 create spud-supremacy
+			// Then paste the database_id returned here and in .dev.vars
+			"binding": "DB",
+			"database_name": "spud-supremacy",
+			"database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+		}
+	]
 }
