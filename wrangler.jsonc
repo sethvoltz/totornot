@@ -9,5 +9,13 @@
 		"directory": ".svelte-kit/cloudflare"
 	},
 	"workers_dev": true,
-	"preview_urls": true
+	"preview_urls": true,
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "totornot",
+			// Replace with your D1 database ID from: wrangler d1 create totornot
+			"database_id": "<REPLACE_WITH_YOUR_D1_DATABASE_ID>"
+		}
+	]
 }
