@@ -1,0 +1,4 @@
+{"timestamp":"2026-03-26T20:14:04Z","operation":"burn","pinned_bead_id":"to-19b","detached_molecule":"to-wisp-nblw","reason":"polecat nuked: cleaning stale molecule","previous_state":"in_progress"}
+{"timestamp":"2026-03-26T20:16:19Z","operation":"burn","pinned_bead_id":"to-ero","detached_molecule":"to-wisp-fn09","reason":"polecat nuked: cleaning stale molecule","previous_state":"hooked"}
+{"timestamp":"2026-03-27T02:22:24Z","operation":"burn","pinned_bead_id":"to-cqu","detached_molecule":"to-wisp-ao4u","reason":"polecat nuked: cleaning stale molecule","previous_state":"hooked"}
+{"timestamp":"2026-03-27T02:35:51Z","operation":"burn","pinned_bead_id":"to-8nk","detached_molecule":"to-wisp-pt29","reason":"polecat nuked: cleaning stale molecule","previous_state":"hooked"}

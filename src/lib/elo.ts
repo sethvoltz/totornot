@@ -1,39 +1,34 @@
-const DEFAULT_K_FACTOR = 32;
+const K = 32;
 
 /**
- * Calculate the expected score for player A against player B.
- * Returns a probability between 0 and 1.
+ * Expected score for player A against player B.
+ * Returns a value between 0 and 1.
  */
 export function calculateExpected(ratingA: number, ratingB: number): number {
 	return 1 / (1 + Math.pow(10, (ratingB - ratingA) / 400));
 }
 
 /**
- * Calculate the updated Elo rating given expected and actual scores.
+ * New Elo rating after a result.
+ * @param rating  Current rating
+ * @param expected  Expected score (0–1) from calculateExpected
+ * @param score  Actual score: 1 for win, 0 for loss, 0.5 for draw
  */
-export function updateElo(
-	rating: number,
-	expected: number,
-	actual: number,
-	kFactor: number = DEFAULT_K_FACTOR
-): number {
-	return rating + kFactor * (actual - expected);
+export function updateElo(rating: number, expected: number, score: number): number {
+	return Math.round(rating + K * (score - expected));
 }
 
 /**
- * Process a vote between two dishes and return their updated Elo ratings.
- * The winner gets actual=1, the loser gets actual=0.
+ * Process a single vote. Returns new ratings for winner and loser.
  */
 export function processVote(
 	winnerRating: number,
-	loserRating: number,
-	kFactor: number = DEFAULT_K_FACTOR
-): { winner: number; loser: number } {
+	loserRating: number
+): { newWinnerRating: number; newLoserRating: number } {
 	const expectedWinner = calculateExpected(winnerRating, loserRating);
 	const expectedLoser = calculateExpected(loserRating, winnerRating);
-
 	return {
-		winner: updateElo(winnerRating, expectedWinner, 1, kFactor),
-		loser: updateElo(loserRating, expectedLoser, 0, kFactor)
+		newWinnerRating: updateElo(winnerRating, expectedWinner, 1),
+		newLoserRating: updateElo(loserRating, expectedLoser, 0)
 	};
 }

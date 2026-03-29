@@ -1,0 +1,2 @@
+{"id":"int-16f0cd45","kind":"field_change","created_at":"2026-03-27T02:22:25.592436Z","actor":"totornot/witness","issue_id":"to-wisp-ao4u","extra":{"field":"status","new_value":"closed","old_value":"open","reason":"burned: polecat nuked"}}
+{"id":"int-abc66e98","kind":"field_change","created_at":"2026-03-27T02:35:51.861565Z","actor":"mayor","issue_id":"to-wisp-pt29","extra":{"field":"status","new_value":"closed","old_value":"open","reason":"burned: polecat nuked"}}

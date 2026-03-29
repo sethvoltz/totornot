@@ -12,10 +12,11 @@
 	"preview_urls": true,
 	"d1_databases": [
 		{
+			// Run: wrangler d1 create spud-supremacy
+			// Then paste the database_id returned here and in .dev.vars
 			"binding": "DB",
-			"database_name": "totornot",
-			// Replace with your D1 database ID from: wrangler d1 create totornot
-			"database_id": "<REPLACE_WITH_YOUR_D1_DATABASE_ID>"
+			"database_name": "spud-supremacy",
+			"database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID"
 		}
 	]
 }
