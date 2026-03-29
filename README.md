@@ -49,10 +49,10 @@ TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
 
 ```sh
 # Create the local SQLite database used by wrangler dev
-wrangler d1 execute spud-supremacy --local --file=./drizzle/0000_initial.sql
+wrangler d1 execute totornot --local --file=./drizzle/0000_initial.sql
 
 # Seed the 10 starter potato dishes
-wrangler d1 execute spud-supremacy --local --file=./drizzle/seed.sql
+wrangler d1 execute totornot --local --file=./drizzle/seed.sql
 ```
 
 > If migrations haven't been generated yet: `pnpm run db:generate` first.
@@ -99,7 +99,7 @@ wrangler login
 **2. Create the D1 database**
 
 ```sh
-wrangler d1 create spud-supremacy
+wrangler d1 create totornot
 ```
 
 Copy the `database_id` from the output and paste it into `wrangler.jsonc`:
@@ -108,7 +108,7 @@ Copy the `database_id` from the output and paste it into `wrangler.jsonc`:
 "d1_databases": [
   {
     "binding": "DB",
-    "database_name": "spud-supremacy",
+    "database_name": "totornot",
     "database_id": "YOUR_DATABASE_ID_HERE"  // ← paste here
   }
 ]
@@ -117,8 +117,8 @@ Copy the `database_id` from the output and paste it into `wrangler.jsonc`:
 **3. Run migrations against production D1**
 
 ```sh
-wrangler d1 execute spud-supremacy --remote --file=./drizzle/0000_initial.sql
-wrangler d1 execute spud-supremacy --remote --file=./drizzle/seed.sql
+wrangler d1 execute totornot --remote --file=./drizzle/0000_initial.sql
+wrangler d1 execute totornot --remote --file=./drizzle/seed.sql
 ```
 
 **4. Create a Turnstile widget**
