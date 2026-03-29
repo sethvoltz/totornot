@@ -1,4 +1,4 @@
-const K = 32;
+const DEFAULT_K_FACTOR = 32;
 
 /**
  * Expected score for player A against player B.
@@ -13,22 +13,30 @@ export function calculateExpected(ratingA: number, ratingB: number): number {
  * @param rating  Current rating
  * @param expected  Expected score (0–1) from calculateExpected
  * @param score  Actual score: 1 for win, 0 for loss, 0.5 for draw
+ * @param kFactor  Optional K factor (default: 32)
  */
-export function updateElo(rating: number, expected: number, score: number): number {
-	return Math.round(rating + K * (score - expected));
+export function updateElo(
+	rating: number,
+	expected: number,
+	score: number,
+	kFactor: number = DEFAULT_K_FACTOR
+): number {
+	return Math.round(rating + kFactor * (score - expected));
 }
 
 /**
  * Process a single vote. Returns new ratings for winner and loser.
+ * @param kFactor  Optional K factor (default: 32)
  */
 export function processVote(
 	winnerRating: number,
-	loserRating: number
-): { newWinnerRating: number; newLoserRating: number } {
+	loserRating: number,
+	kFactor: number = DEFAULT_K_FACTOR
+): { winner: number; loser: number } {
 	const expectedWinner = calculateExpected(winnerRating, loserRating);
 	const expectedLoser = calculateExpected(loserRating, winnerRating);
 	return {
-		newWinnerRating: updateElo(winnerRating, expectedWinner, 1),
-		newLoserRating: updateElo(loserRating, expectedLoser, 0)
+		winner: updateElo(winnerRating, expectedWinner, 1, kFactor),
+		loser: updateElo(loserRating, expectedLoser, 0, kFactor)
 	};
 }
