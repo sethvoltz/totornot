@@ -1,6 +1,6 @@
-# 🥔 Spud Supremacy
+# Tot or Not
 
-A side-by-side potato dish ranking site powered by Elo ratings. Two spuds enter, one spud leaves. Vote for your favourite, watch the global rankings shift.
+A side-by-side rating app powered by Elo ratings. Two items enter, one item leaves. Vote for your favourite, watch the global rankings shift.
 
 - **No accounts** — just vote
 - **Elo ranking** — zero-sum, globally consistent scores
