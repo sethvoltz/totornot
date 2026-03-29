@@ -13,7 +13,7 @@
 	<header class="border-b border-amber-200 bg-white shadow-sm">
 		<nav class="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
 			<a href="/" class="flex items-center gap-2 text-xl font-bold text-amber-800 hover:text-amber-600">
-				🥔 Spud Supremacy
+				Tot or Not
 			</a>
 			<div class="flex items-center gap-4">
 				<a
@@ -31,7 +31,7 @@
 	</main>
 
 	<footer class="border-t border-amber-200 py-4 text-center text-sm text-amber-600">
-		Vote for your favourite spud • Rankings powered by Elo
+		Vote for your favourite • Rankings powered by Elo
 	</footer>
 </div>
 
