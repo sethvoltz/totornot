@@ -91,20 +91,7 @@ wrangler d1 migrations list totornot --local
 
 > Migrations are stored in `drizzle/migrations/` and tracked in the `d1_migrations` table.
 
-### 6. Seed the database
-
-```sh
-# Run the seed script via wrangler
-wrangler d1 execute totornot --local --file=./src/lib/server/db/seed.sql
-```
-
-Or use the TypeScript seed (for development):
-
-```sh
-# This requires a compiled version - for now use the SQL seed above
-```
-
-### 7. Start the dev server
+### 6. Start the dev server
 
 ```sh
 pnpm dev
@@ -182,12 +169,10 @@ wrangler d1 migrations list totornot --remote
 
 # Apply all pending migrations
 wrangler d1 migrations apply totornot --remote
-
-# Seed the database
-wrangler d1 execute totornot --remote --file=./src/lib/server/db/seed.sql
 ```
 
 > Wrangler tracks applied migrations in the `d1_migrations` table, so you can safely run this multiple times - already-applied migrations are skipped.
+> Initial seed data (30 potato dishes) is included in the first migration.
 
 **4. Create a Turnstile widget**
 
@@ -241,8 +226,7 @@ src/
     server/db/
       schema.ts         # Drizzle schema (dishes, votes, rate_limits)
       index.ts          # DB connection helper
-      seed.sql          # Seed data
-      seed.ts           # TypeScript seed script
+
   routes/
     +layout.svelte      # App shell with nav
     +page.svelte        # Matchup voting page
