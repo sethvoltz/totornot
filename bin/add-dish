@@ -1,0 +1,153 @@
+#!/usr/bin/env node
+
+import { readFileSync, writeFileSync, readdirSync, existsSync } from 'fs';
+import { join } from 'path';
+
+function generateUUID() {
+	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+		const r = (Math.random() * 16) | 0;
+		const v = c === 'x' ? r : (r & 0x3) | 0x8;
+		return v.toString(16);
+	});
+}
+
+function sanitizeForFilename(name) {
+	return name
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, '_')
+		.replace(/^_|_$/g, '')
+		.substring(0, 30);
+}
+
+function escapeSQL(str) {
+	return str.replace(/'/g, "''");
+}
+
+function getMigrationsDir() {
+	return join(process.cwd(), 'drizzle', 'migrations');
+}
+
+function getExistingMigrations() {
+	const migrationsDir = getMigrationsDir();
+	if (!existsSync(migrationsDir)) {
+		return [];
+	}
+	return readdirSync(migrationsDir)
+		.filter((f) => f.endsWith('.sql') && f !== '0000_initial.sql')
+		.map((f) => parseInt(f.split('_')[0]))
+		.filter((n) => !isNaN(n))
+		.sort((a, b) => b - a);
+}
+
+function getMostRecentMigration() {
+	const migrationsDir = getMigrationsDir();
+	if (!existsSync(migrationsDir)) {
+		return null;
+	}
+	const files = readdirSync(migrationsDir)
+		.filter((f) => f.endsWith('.sql') && f !== '0000_initial.sql')
+		.sort((a, b) => {
+			const numA = parseInt(a.split('_')[0]);
+			const numB = parseInt(b.split('_')[0]);
+			return numB - numA;
+		});
+	return files[0] || null;
+}
+
+function createMigration(name, description) {
+	const migrations = getExistingMigrations();
+	const nextNum = migrations.length > 0 ? migrations[0] + 1 : 1;
+	const numStr = String(nextNum).padStart(4, '0');
+	const sanitized = sanitizeForFilename(name);
+	const filename = `${numStr}_add_${sanitized}.sql`;
+	const filepath = join(getMigrationsDir(), filename);
+
+	const uuid = generateUUID();
+	const sql = `-- Migration: Add ${name}
+INSERT INTO dishes (id, name, description, elo, created_at) VALUES
+  ('${uuid}', '${escapeSQL(name)}', '${escapeSQL(description)}', 1200, unixepoch());
+`;
+
+	writeFileSync(filepath, sql);
+	return { filename, filepath, uuid };
+}
+
+function appendToMigration(name, description) {
+	const mostRecent = getMostRecentMigration();
+	if (!mostRecent) {
+		console.error('Error: No migrations exist to append to.');
+		console.error('Run without --append to create a new migration.');
+		process.exit(1);
+	}
+
+	const filepath = join(getMigrationsDir(), mostRecent);
+	const existing = readFileSync(filepath, 'utf-8');
+	const uuid = generateUUID();
+	const insertLine = `INSERT INTO dishes (id, name, description, elo, created_at) VALUES
+  ('${uuid}', '${escapeSQL(name)}', '${escapeSQL(description)}', 1200, unixepoch());
+`;
+
+	const updated = existing.trimEnd() + '\n' + insertLine;
+	writeFileSync(filepath, updated);
+	return { filename: mostRecent, filepath, uuid };
+}
+
+function printHelp() {
+	console.log(`
+Usage: bin/add-dish <name> <description> [options]
+
+Arguments:
+  name        Name of the dish (required)
+  description Description of the dish (required)
+
+Options:
+  -a, --append  Append to most recent migration instead of creating new one
+  -h, --help    Show this help message
+
+Examples:
+  # Create new migration
+  bin/add-dish "Potato Skins" "Crispy roasted potato skins"
+
+  # Add to existing migration
+  bin/add-dish "Tater Tots" "Golden fried potato cylinders" --append
+
+  # Apply migration
+  wrangler d1 migrations apply totornot --local
+`);
+}
+
+function main() {
+	const args = process.argv.slice(2);
+
+	if (args.includes('-h') || args.includes('--help')) {
+		printHelp();
+		process.exit(0);
+	}
+
+	const append = args.includes('-a') || args.includes('--append');
+	const filteredArgs = args.filter((a) => !['-a', '--append'].includes(a));
+
+	if (filteredArgs.length < 2) {
+		console.error('Error: Missing required arguments.');
+		console.error('Usage: bin/add-dish <name> <description> [--append]');
+		process.exit(1);
+	}
+
+	const name = filteredArgs[0];
+	const description = filteredArgs.slice(1).join(' ');
+
+	let result;
+	if (append) {
+		result = appendToMigration(name, description);
+		console.log(`\n✓ Appended "${name}" to migration: ${result.filename}`);
+	} else {
+		result = createMigration(name, description);
+		console.log(`\n✓ Created migration: ${result.filename}`);
+	}
+
+	console.log(`  UUID: ${result.uuid}`);
+	console.log(`\nTo apply this migration:`);
+	console.log(`  wrangler d1 migrations apply totornot --local`);
+}
+
+main();

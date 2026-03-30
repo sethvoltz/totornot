@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 export const dishes = sqliteTable('dishes', {
 	id: text('id')
@@ -6,6 +6,7 @@ export const dishes = sqliteTable('dishes', {
 		.$defaultFn(() => crypto.randomUUID()),
 	name: text('name').notNull(),
 	description: text('description'),
+	elo: real('elo').notNull().default(1200),
 	createdAt: integer('created_at', { mode: 'timestamp' })
 		.notNull()
 		.$defaultFn(() => new Date())
@@ -18,7 +19,7 @@ export const votes = sqliteTable('votes', {
 	dishId: text('dish_id')
 		.notNull()
 		.references(() => dishes.id),
-	value: integer('value').notNull(), // 1 = "to", -1 = "not"
+	value: integer('value').notNull(),
 	fingerprint: text('fingerprint').notNull(),
 	createdAt: integer('created_at', { mode: 'timestamp' })
 		.notNull()

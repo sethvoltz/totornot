@@ -13,7 +13,13 @@ const config = {
 			return isExternalLibrary ? undefined : true;
 		}
 	},
-	kit: { adapter: adapter() }
+	kit: {
+		adapter: adapter({
+			platformProxy: {
+				persist: true
+			}
+		})
+	}
 };
 
 export default config;
