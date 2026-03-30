@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { locales, localizeHref } from '$lib/paraglide/runtime';
+	import * as m from '$lib/paraglide/messages';
 	import { onMount } from 'svelte';
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
@@ -74,18 +75,18 @@
 				class="neon-sign flex items-center gap-3 text-2xl text-white transition-transform hover:scale-[1.02]"
 			>
 				<span class="text-3xl">🥔</span>
-				<span>Tot or Not</span>
+				<span>{m.site_title()}</span>
 			</a>
 			<div class="flex items-center gap-3">
 				<a href="/leaderboard" class="diner-btn px-5 py-2.5 text-sm font-semibold text-white">
-					🏆 Hall of Fame
+					🏆 {m.hall_of_fame()}
 				</a>
 				{#if mounted}
 					<button
 						type="button"
 						onclick={toggleTheme}
 						class="theme-toggle diner-btn flex h-10 w-10 items-center justify-center rounded-full text-white"
-						aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+						aria-label={theme === 'light' ? m.switch_to_dark_mode() : m.switch_to_light_mode()}
 					>
 						{#if theme === 'light'}
 							<svg
@@ -124,7 +125,7 @@
 		class="border-t py-6 text-center text-sm"
 		style="border-color: var(--card-border); background-color: var(--bg-secondary); color: var(--text-muted);"
 	>
-		Vote for your favourite tot • Rankings powered by Elo
+		{m.footer_tagline()}
 	</footer>
 </div>
 

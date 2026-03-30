@@ -3,6 +3,7 @@
 	import { initDishes, setDishes, getCurrentDishes, type Dish } from '$lib/dishes-state';
 	import { untrack } from 'svelte';
 	import type { PageData } from './$types';
+	import * as m from '$lib/paraglide/messages';
 
 	let { data }: { data: PageData } = $props();
 
@@ -50,10 +51,10 @@
 	{#if dishes.length >= 2}
 		<div class="mb-12 text-center">
 			<h1 class="neon-sign text-4xl md:text-5xl" style="color: var(--text-primary);">
-				Which Tot's Hot?
+				{m.voting_heading()}
 			</h1>
 			<p class="mt-4 text-lg" style="color: var(--text-secondary);">
-				Pick your favourite to cast your vote
+				{m.voting_subheading()}
 			</p>
 		</div>
 
@@ -73,7 +74,7 @@
 					class="flex h-16 w-16 items-center justify-center rounded-full md:h-20 md:w-20"
 					style="background-color: var(--bg-secondary);"
 				>
-					<span class="vs-badge text-xl md:text-2xl">VS</span>
+					<span class="vs-badge text-xl md:text-2xl">{m.vs()}</span>
 				</div>
 			</div>
 
@@ -89,9 +90,11 @@
 		</div>
 	{:else}
 		<div class="py-24 text-center">
-			<h1 class="neon-sign mb-4 text-3xl" style="color: var(--text-primary);">No Tots?!</h1>
+			<h1 class="neon-sign mb-4 text-3xl" style="color: var(--text-primary);">
+				{m.empty_heading()}
+			</h1>
 			<p class="text-lg" style="color: var(--text-secondary);">
-				We need at least 2 tots to start the showdown.
+				{m.empty_message()}
 			</p>
 		</div>
 	{/if}

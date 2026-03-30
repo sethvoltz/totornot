@@ -1,12 +1,13 @@
 <script lang="ts">
 	import type { PageData } from './$types';
+	import * as m from '$lib/paraglide/messages';
 
 	let { data }: { data: PageData } = $props();
 </script>
 
 <div class="mx-auto max-w-2xl px-6 py-16">
 	<h1 class="neon-sign mb-10 text-center text-4xl" style="color: var(--text-primary);">
-		Hall of Fame
+		{m.hall_of_fame()}
 	</h1>
 
 	<ol class="space-y-3">
