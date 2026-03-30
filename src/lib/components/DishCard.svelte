@@ -2,18 +2,18 @@
 	interface Props {
 		image: string;
 		name: string;
-		elo: number;
+		description?: string | null;
 		onclick?: () => void;
 		loading?: boolean;
 		selected?: boolean;
 	}
 
-	const { image, name, elo, onclick, loading = false, selected = false }: Props = $props();
+	const { image, name, description, onclick, loading = false, selected = false }: Props = $props();
 </script>
 
 <button
 	type="button"
-	class="diner-card relative flex flex-col overflow-hidden text-left focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+	class="diner-card relative flex cursor-pointer flex-col overflow-hidden text-left focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
 	class:neon-glow={selected &&
 		typeof window !== 'undefined' &&
 		document.documentElement.classList.contains('dark')}
@@ -59,11 +59,7 @@
 	<div class="flex items-center justify-between gap-3 p-4">
 		{#if loading}
 			<div
-				class="h-5 w-2/3 animate-pulse rounded"
-				style="background-color: var(--bg-tertiary);"
-			></div>
-			<div
-				class="h-6 w-12 animate-pulse rounded-full"
+				class="h-5 w-full animate-pulse rounded"
 				style="background-color: var(--bg-tertiary);"
 			></div>
 		{:else}
@@ -73,12 +69,33 @@
 			>
 				{name}
 			</span>
-			<span
-				class="shrink-0 rounded-full px-3 py-1 text-sm font-bold"
-				style="background-color: var(--accent-primary); color: white;"
-			>
-				{elo}
-			</span>
+			{#if description}
+				<div class="tooltip-container relative shrink-0">
+					<span
+						class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full"
+						style="background-color: var(--bg-tertiary); color: var(--text-muted);"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							class="h-4 w-4"
+							viewBox="0 0 20 20"
+							fill="currentColor"
+						>
+							<path
+								fill-rule="evenodd"
+								d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+								clip-rule="evenodd"
+							/>
+						</svg>
+					</span>
+					<div
+						class="tooltip absolute right-0 bottom-full mb-2 w-48 rounded-lg px-3 py-2 text-sm shadow-lg"
+						style="background-color: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--card-border);"
+					>
+						{description}
+					</div>
+				</div>
+			{/if}
 		{/if}
 	</div>
 </button>
@@ -86,5 +103,19 @@
 <style>
 	button:not(:disabled):active {
 		transform: scale(0.98);
+	}
+
+	.tooltip-container .tooltip {
+		visibility: hidden;
+		opacity: 0;
+		transition:
+			opacity 0.2s,
+			visibility 0.2s;
+		z-index: 50;
+	}
+
+	.tooltip-container:hover .tooltip {
+		visibility: visible;
+		opacity: 1;
 	}
 </style>

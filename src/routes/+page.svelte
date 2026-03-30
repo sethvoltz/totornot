@@ -63,7 +63,7 @@
 				<DishCard
 					image={getPlaceholderImage(dishes[0].name)}
 					name={dishes[0].name}
-					elo={Math.round(dishes[0].elo)}
+					description={dishes[0].description}
 					onclick={() => handleVote(dishes[0].id, dishes[1].id)}
 					{loading}
 				/>
@@ -82,7 +82,7 @@
 				<DishCard
 					image={getPlaceholderImage(dishes[1].name)}
 					name={dishes[1].name}
-					elo={Math.round(dishes[1].elo)}
+					description={dishes[1].description}
 					onclick={() => handleVote(dishes[1].id, dishes[0].id)}
 					{loading}
 				/>

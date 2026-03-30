@@ -85,7 +85,7 @@
 					<button
 						type="button"
 						onclick={toggleTheme}
-						class="theme-toggle diner-btn flex h-10 w-10 items-center justify-center rounded-full text-white"
+						class="theme-toggle diner-btn flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-white"
 						aria-label={theme === 'light' ? m.switch_to_dark_mode() : m.switch_to_light_mode()}
 					>
 						{#if theme === 'light'}
@@ -125,7 +125,8 @@
 		class="border-t py-6 text-center text-sm"
 		style="border-color: var(--card-border); background-color: var(--bg-secondary); color: var(--text-muted);"
 	>
-		{m.footer_tagline()}
+		<p>{m.footer_tagline()}</p>
+		<p class="mt-1">&copy; 2026 Tot or Not</p>
 	</footer>
 </div>
 
