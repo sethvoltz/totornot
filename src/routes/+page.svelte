@@ -6,16 +6,12 @@
 
 	let { data }: { data: PageData } = $props();
 
-	// Initialize from SSR data once (untrack signals intentional capture of initial value only)
 	untrack(() => initDishes(data.dishes || []));
 
 	let loading = $state(false);
-	// Local reactive state synced from module-level state (persists across HMR)
 	let dishes = $state(getCurrentDishes());
 
-	// Generate a placeholder image URL based on dish name
 	function getPlaceholderImage(name: string): string {
-		// Using picsum with a seed based on the name for consistency
 		const seed = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
 		return `https://picsum.photos/seed/${seed}/400/400`;
 	}
@@ -50,16 +46,19 @@
 	}
 </script>
 
-<div class="mx-auto max-w-4xl px-4 py-10">
+<div class="mx-auto max-w-5xl px-6 py-16">
 	{#if dishes.length >= 2}
-		<div class="mb-8 text-center">
-			<h1 class="text-2xl font-bold text-gray-900">Which dish looks tastier?</h1>
-			<p class="mt-2 text-gray-600">Click on your favorite to vote</p>
+		<div class="mb-12 text-center">
+			<h1 class="neon-sign text-4xl md:text-5xl" style="color: var(--text-primary);">
+				Which Tot's Hot?
+			</h1>
+			<p class="mt-4 text-lg" style="color: var(--text-secondary);">
+				Pick your favourite to cast your vote
+			</p>
 		</div>
 
-		<div class="flex items-center justify-center gap-4 md:gap-8">
-			<!-- Left Dish -->
-			<div class="max-w-sm flex-1">
+		<div class="flex items-center justify-center gap-8 md:gap-12">
+			<div class="flex-1" style="max-width: 320px;">
 				<DishCard
 					image={getPlaceholderImage(dishes[0].name)}
 					name={dishes[0].name}
@@ -69,13 +68,16 @@
 				/>
 			</div>
 
-			<!-- VS Divider -->
 			<div class="flex flex-col items-center justify-center px-2">
-				<span class="text-3xl font-black tracking-wider text-gray-300 uppercase">vs</span>
+				<div
+					class="flex h-16 w-16 items-center justify-center rounded-full md:h-20 md:w-20"
+					style="background-color: var(--bg-secondary);"
+				>
+					<span class="vs-badge text-xl md:text-2xl">VS</span>
+				</div>
 			</div>
 
-			<!-- Right Dish -->
-			<div class="max-w-sm flex-1">
+			<div class="flex-1" style="max-width: 320px;">
 				<DishCard
 					image={getPlaceholderImage(dishes[1].name)}
 					name={dishes[1].name}
@@ -86,9 +88,11 @@
 			</div>
 		</div>
 	{:else}
-		<div class="py-20 text-center">
-			<h1 class="mb-4 text-2xl font-bold text-gray-900">Not enough dishes</h1>
-			<p class="text-gray-600">We need at least 2 dishes in the database to show voting pairs.</p>
+		<div class="py-24 text-center">
+			<h1 class="neon-sign mb-4 text-3xl" style="color: var(--text-primary);">No Tots?!</h1>
+			<p class="text-lg" style="color: var(--text-secondary);">
+				We need at least 2 tots to start the showdown.
+			</p>
 		</div>
 	{/if}
 </div>
