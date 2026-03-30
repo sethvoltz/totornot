@@ -1,12 +1,17 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
 	import DishCard from '$lib/components/DishCard.svelte';
+	import { initDishes, setDishes, getCurrentDishes, type Dish } from '$lib/dishes-state';
+	import { untrack } from 'svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
+	// Initialize from SSR data once (untrack signals intentional capture of initial value only)
+	untrack(() => initDishes(data.dishes || []));
+
 	let loading = $state(false);
-	let dishes = $derived(data.dishes || []);
+	// Local reactive state synced from module-level state (persists across HMR)
+	let dishes = $state(getCurrentDishes());
 
 	// Generate a placeholder image URL based on dish name
 	function getPlaceholderImage(name: string): string {
@@ -21,22 +26,25 @@
 		loading = true;
 
 		try {
-			const response = await fetch('/api/vote', {
+			const voteResponse = await fetch('/api/vote', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ winnerId, loserId })
 			});
 
-			if (!response.ok) {
+			if (!voteResponse.ok) {
 				throw new Error('Vote failed');
 			}
 
-			// Load fresh pair after successful vote
-			if (browser) {
-				window.location.reload();
+			const dishesResponse = await fetch('/api/dishes/random');
+			if (dishesResponse.ok) {
+				const result = (await dishesResponse.json()) as { dishes: Dish[] };
+				setDishes(result.dishes || []);
+				dishes = result.dishes || [];
 			}
 		} catch (error) {
 			console.error('Vote error:', error);
+		} finally {
 			loading = false;
 		}
 	}
