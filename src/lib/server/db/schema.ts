@@ -6,6 +6,8 @@ export const dishes = sqliteTable('dishes', {
 		.$defaultFn(() => crypto.randomUUID()),
 	name: text('name').notNull(),
 	description: text('description'),
+	imagePath: text('image_path'),
+	imageAttribution: text('image_attribution'),
 	elo: real('elo').notNull().default(1200),
 	createdAt: integer('created_at', { mode: 'timestamp' })
 		.notNull()

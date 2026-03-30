@@ -54,6 +54,13 @@ function getMostRecentMigration() {
 	return files[0] || null;
 }
 
+function kebabCase(str) {
+	return str
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/^-|-$/g, '');
+}
+
 function createMigration(name, description) {
 	const migrations = getExistingMigrations();
 	const nextNum = migrations.length > 0 ? migrations[0] + 1 : 1;
@@ -63,13 +70,14 @@ function createMigration(name, description) {
 	const filepath = join(getMigrationsDir(), filename);
 
 	const uuid = generateUUID();
+	const imageFilename = `${kebabCase(name)}.jpg`;
 	const sql = `-- Migration: Add ${name}
-INSERT INTO dishes (id, name, description, elo, created_at) VALUES
-  ('${uuid}', '${escapeSQL(name)}', '${escapeSQL(description)}', 1200, unixepoch());
+INSERT INTO dishes (id, name, description, image_path, image_attribution, elo, created_at) VALUES
+  ('${uuid}', '${escapeSQL(name)}', '${escapeSQL(description)}', '${imageFilename}', NULL, 1200, unixepoch());
 `;
 
 	writeFileSync(filepath, sql);
-	return { filename, filepath, uuid };
+	return { filename, filepath, uuid, imageFilename };
 }
 
 function appendToMigration(name, description) {
@@ -83,13 +91,14 @@ function appendToMigration(name, description) {
 	const filepath = join(getMigrationsDir(), mostRecent);
 	const existing = readFileSync(filepath, 'utf-8');
 	const uuid = generateUUID();
-	const insertLine = `INSERT INTO dishes (id, name, description, elo, created_at) VALUES
-  ('${uuid}', '${escapeSQL(name)}', '${escapeSQL(description)}', 1200, unixepoch());
+	const imageFilename = `${kebabCase(name)}.jpg`;
+	const insertLine = `INSERT INTO dishes (id, name, description, image_path, image_attribution, elo, created_at) VALUES
+  ('${uuid}', '${escapeSQL(name)}', '${escapeSQL(description)}', '${imageFilename}', NULL, 1200, unixepoch());
 `;
 
 	const updated = existing.trimEnd() + '\n' + insertLine;
 	writeFileSync(filepath, updated);
-	return { filename: mostRecent, filepath, uuid };
+	return { filename: mostRecent, filepath, uuid, imageFilename };
 }
 
 function printHelp() {
@@ -146,6 +155,10 @@ function main() {
 	}
 
 	console.log(`  UUID: ${result.uuid}`);
+	console.log(`\n⚠️  Remember to add an image:`);
+	console.log(`  Add ${result.imageFilename} to static/images/dishes/`);
+	console.log(`\n💡 Optional: Set image attribution in the migration file`);
+	console.log(`  Update image_attribution column if needed`);
 	console.log(`\nTo apply this migration:`);
 	console.log(`  wrangler d1 migrations apply totornot --local`);
 }

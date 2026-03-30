@@ -1,13 +1,9 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import * as m from '$lib/paraglide/messages';
+	import { resolveImageUrl } from '$lib/utils/image';
 
 	let { data }: { data: PageData } = $props();
-
-	function getPlaceholderImage(name: string): string {
-		const seed = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-		return `https://picsum.photos/seed/${seed}/300/300`;
-	}
 
 	const top3 = $derived(data.dishes.slice(0, 3));
 	const rest = $derived(data.dishes.slice(3, 10));
@@ -27,7 +23,7 @@
 						style="background: var(--card-bg); border: 1px solid var(--card-border);"
 					>
 						<img
-							src={getPlaceholderImage(top3[1].name)}
+							src={resolveImageUrl(top3[1].imagePath)}
 							alt={top3[1].name}
 							class="h-44 w-44 object-cover"
 						/>
@@ -51,7 +47,7 @@
 						style="background: var(--card-bg); border: 1px solid var(--card-border);"
 					>
 						<img
-							src={getPlaceholderImage(top3[0].name)}
+							src={resolveImageUrl(top3[0].imagePath)}
 							alt={top3[0].name}
 							class="h-56 w-56 object-cover"
 						/>
@@ -75,7 +71,7 @@
 						style="background: var(--card-bg); border: 1px solid var(--card-border);"
 					>
 						<img
-							src={getPlaceholderImage(top3[2].name)}
+							src={resolveImageUrl(top3[2].imagePath)}
 							alt={top3[2].name}
 							class="h-36 w-36 object-cover"
 						/>

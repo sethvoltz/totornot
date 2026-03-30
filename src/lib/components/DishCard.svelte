@@ -3,12 +3,28 @@
 		image: string;
 		name: string;
 		description?: string | null;
+		imageAttribution?: string | null;
 		onclick?: () => void;
 		loading?: boolean;
 		selected?: boolean;
 	}
 
-	const { image, name, description, onclick, loading = false, selected = false }: Props = $props();
+	const {
+		image,
+		name,
+		description,
+		imageAttribution,
+		onclick,
+		loading = false,
+		selected = false
+	}: Props = $props();
+
+	const fullDescription = $derived(() => {
+		if (!description && !imageAttribution) return null;
+		if (!imageAttribution) return description;
+		if (!description) return `Image: ${imageAttribution}`;
+		return `${description}\n\nImage: ${imageAttribution}`;
+	});
 </script>
 
 <button
@@ -69,7 +85,7 @@
 			>
 				{name}
 			</span>
-			{#if description}
+			{#if fullDescription()}
 				<div class="tooltip-container relative shrink-0">
 					<span
 						class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full"
@@ -90,9 +106,9 @@
 					</span>
 					<div
 						class="tooltip absolute right-0 bottom-full mb-2 w-48 rounded-lg px-3 py-2 text-sm shadow-lg"
-						style="background-color: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--card-border);"
+						style="background-color: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--card-border); white-space: pre-wrap;"
 					>
-						{description}
+						{fullDescription()}
 					</div>
 				</div>
 			{/if}

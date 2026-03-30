@@ -4,6 +4,7 @@
 	import { untrack } from 'svelte';
 	import type { PageData } from './$types';
 	import * as m from '$lib/paraglide/messages';
+	import { resolveImageUrl } from '$lib/utils/image';
 
 	let { data }: { data: PageData } = $props();
 
@@ -11,11 +12,6 @@
 
 	let loading = $state(false);
 	let dishes = $state(getCurrentDishes());
-
-	function getPlaceholderImage(name: string): string {
-		const seed = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-		return `https://picsum.photos/seed/${seed}/400/400`;
-	}
 
 	async function handleVote(winnerId: string, loserId: string) {
 		if (loading) return;
@@ -61,9 +57,10 @@
 		<div class="flex items-center justify-center gap-8 md:gap-12">
 			<div class="flex-1" style="max-width: 320px;">
 				<DishCard
-					image={getPlaceholderImage(dishes[0].name)}
+					image={resolveImageUrl(dishes[0].imagePath)}
 					name={dishes[0].name}
 					description={dishes[0].description}
+					imageAttribution={dishes[0].imageAttribution}
 					onclick={() => handleVote(dishes[0].id, dishes[1].id)}
 					{loading}
 				/>
@@ -80,9 +77,10 @@
 
 			<div class="flex-1" style="max-width: 320px;">
 				<DishCard
-					image={getPlaceholderImage(dishes[1].name)}
+					image={resolveImageUrl(dishes[1].imagePath)}
 					name={dishes[1].name}
 					description={dishes[1].description}
+					imageAttribution={dishes[1].imageAttribution}
 					onclick={() => handleVote(dishes[1].id, dishes[0].id)}
 					{loading}
 				/>

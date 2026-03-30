@@ -2,6 +2,8 @@ export interface Dish {
 	id: string;
 	name: string;
 	description: string | null;
+	imagePath: string | null;
+	imageAttribution: string | null;
 	elo: number;
 	createdAt: Date;
 }
