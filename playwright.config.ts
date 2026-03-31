@@ -2,7 +2,9 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
 	webServer: {
-		command: 'npm run build && npm run preview',
+		command: process.env.CI
+			? 'pnpm build && pnpm wrangler dev .svelte-kit/cloudflare/_worker.js --port 4173 --local'
+			: 'pnpm build && pnpm preview',
 		port: 4173,
 		reuseExistingServer: !process.env.CI
 	},
