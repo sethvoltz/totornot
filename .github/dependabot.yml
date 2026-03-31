@@ -1,0 +1,60 @@
+version: 2
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    cooldown:
+      default-days: 6
+    open-pull-requests-limit: 10
+    groups:
+      svelte:
+        patterns:
+          - 'svelte'
+          - 'svelte-check'
+          - '@sveltejs/*'
+      vitest:
+        patterns:
+          - 'vitest'
+          - '@vitest/*'
+          - 'vitest-browser-svelte'
+      storybook:
+        patterns:
+          - 'storybook'
+          - '@storybook/*'
+      tailwind:
+        patterns:
+          - 'tailwindcss'
+          - '@tailwindcss/*'
+          - 'prettier-plugin-tailwindcss'
+      eslint:
+        patterns:
+          - 'eslint'
+          - '@eslint/*'
+          - 'eslint-*'
+          - 'globals'
+      prettier:
+        patterns:
+          - 'prettier'
+          - 'prettier-*'
+      drizzle:
+        patterns:
+          - 'drizzle-kit'
+          - 'drizzle-orm'
+      playwright:
+        patterns:
+          - 'playwright'
+          - '@playwright/*'
+      typescript:
+        patterns:
+          - 'typescript'
+          - 'typescript-eslint'
+          - '@types/*'
+      vite:
+        patterns:
+          - 'vite'
+          - '@vitejs/*'
+    commit-message:
+      prefix: 'deps'
+      include: 'scope'
