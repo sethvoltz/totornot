@@ -13,16 +13,42 @@
 		/>
 		<title>Tot or Not</title>
 
+		<!-- DNS prefetch for faster font loading -->
+		<link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+		<link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+
 		<!-- Preconnect to font domains -->
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+		<!-- Inline critical font CSS to prevent FOIT -->
+		<style>
+			/* Critical CSS: System fonts as immediate fallback */
+			:root {
+				--font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+				--font-serif: Georgia, 'Times New Roman', serif;
+			}
+
+			* {
+				font-family: var(--font-sans);
+			}
+
+			.font-serif,
+			[class*='font-serif'],
+			[class*='neon-sign'] {
+				font-family: var(--font-serif);
+			}
+		</style>
 
 		<!-- Async font loading to prevent render blocking -->
 		<link
 			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,600;1,700;1,800;1,900&display=swap"
 			rel="preload"
 			as="style"
-			onload="this.rel = 'stylesheet'"
+			onload="
+				this.rel = 'stylesheet';
+				document.documentElement.classList.add('fonts-loaded');
+			"
 		/>
 		<noscript>
 			<link
@@ -30,22 +56,6 @@
 				rel="stylesheet"
 			/>
 		</noscript>
-
-		<style>
-			/* Critical CSS: Prevent layout shift while fonts load */
-			:root {
-				--font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-				--font-serif: Georgia, 'Times New Roman', serif;
-			}
-
-			body {
-				font-family: var(--font-sans);
-			}
-
-			.font-serif {
-				font-family: var(--font-serif);
-			}
-		</style>
 
 		%sveltekit.head%
 	</head>
