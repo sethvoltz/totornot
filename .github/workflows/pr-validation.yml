@@ -28,6 +28,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate types
+        run: pnpm gen
+
       - name: Run linter
         run: pnpm lint
 
@@ -131,8 +134,7 @@ jobs:
 
       - name: Setup D1 database
         run: |
-          mkdir -p .wrangler/state/v3/d1/miniflare-D1DatabaseObject
-          sqlite3 .wrangler/state/v3/d1/miniflare-D1DatabaseObject/2a42498a3519ca45c3ebc390e6fd06656ee830829811b8c0fb3ecafdac5c756a.sqlite < drizzle/migrations/0000_initial.sql
+          pnpm dlx wrangler@3 d1 migrations apply totornot --local
 
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps
