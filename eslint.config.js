@@ -1,6 +1,3 @@
-// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
-import storybook from 'eslint-plugin-storybook';
-
 import prettier from 'eslint-config-prettier';
 import path from 'node:path';
 import { includeIgnoreFile } from '@eslint/compat';
@@ -21,11 +18,16 @@ export default defineConfig(
 	prettier,
 	svelte.configs.prettier,
 	{
+		ignores: ['src/lib/paraglide/**']
+	},
+	{
 		languageOptions: { globals: { ...globals.browser, ...globals.node } },
 		rules: {
 			// typescript-eslint strongly recommend that you do not use the no-undef lint rule on TypeScript projects.
 			// see: https://typescript-eslint.io/troubleshooting/faqs/eslint/#i-get-errors-from-the-no-undef-rule-about-global-variables-not-being-defined-even-though-there-are-no-typescript-errors
-			'no-undef': 'off'
+			'no-undef': 'off',
+			// paraglide uses localizeHref() instead of resolve()
+			'svelte/no-navigation-without-resolve': 'off'
 		}
 	},
 	{

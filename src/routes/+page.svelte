@@ -44,56 +44,45 @@
 </script>
 
 <div class="mx-auto max-w-5xl px-6 py-16">
-	{#if dishes.length >= 2}
-		<div class="mb-12 text-center">
-			<h1 class="neon-sign text-4xl md:text-5xl" style="color: var(--text-primary);">
-				{m.voting_heading()}
-			</h1>
-			<p class="mt-4 text-lg" style="color: var(--text-secondary);">
-				{m.voting_subheading()}
-			</p>
+	<div class="mb-12 text-center">
+		<h1 class="neon-sign text-4xl md:text-5xl" style="color: var(--text-primary);">
+			{m.voting_heading()}
+		</h1>
+		<p class="mt-4 text-lg" style="color: var(--text-secondary);">
+			{m.voting_subheading()}
+		</p>
+	</div>
+
+	<div class="flex items-center justify-center gap-8 md:gap-12">
+		<div class="flex-1" data-testid="dish-card-container" style="max-width: 320px;">
+			<DishCard
+				image={resolveImageUrl(dishes[0].imagePath)}
+				name={dishes[0].name}
+				description={dishes[0].description}
+				imageAttribution={dishes[0].imageAttribution}
+				onclick={() => handleVote(dishes[0].id, dishes[1].id)}
+				{loading}
+			/>
 		</div>
 
-		<div class="flex items-center justify-center gap-8 md:gap-12">
-			<div class="flex-1" style="max-width: 320px;">
-				<DishCard
-					image={resolveImageUrl(dishes[0].imagePath)}
-					name={dishes[0].name}
-					description={dishes[0].description}
-					imageAttribution={dishes[0].imageAttribution}
-					onclick={() => handleVote(dishes[0].id, dishes[1].id)}
-					{loading}
-				/>
-			</div>
-
-			<div class="flex flex-col items-center justify-center px-2">
-				<div
-					class="flex h-16 w-16 items-center justify-center rounded-full md:h-20 md:w-20"
-					style="background-color: var(--bg-secondary);"
-				>
-					<span class="vs-badge text-xl md:text-2xl">{m.vs()}</span>
-				</div>
-			</div>
-
-			<div class="flex-1" style="max-width: 320px;">
-				<DishCard
-					image={resolveImageUrl(dishes[1].imagePath)}
-					name={dishes[1].name}
-					description={dishes[1].description}
-					imageAttribution={dishes[1].imageAttribution}
-					onclick={() => handleVote(dishes[1].id, dishes[0].id)}
-					{loading}
-				/>
+		<div class="flex flex-col items-center justify-center px-2">
+			<div
+				class="flex h-16 w-16 items-center justify-center rounded-full md:h-20 md:w-20"
+				style="background-color: var(--bg-secondary);"
+			>
+				<span data-testid="vs-badge" class="vs-badge text-xl md:text-2xl">{m.vs()}</span>
 			</div>
 		</div>
-	{:else}
-		<div class="py-24 text-center">
-			<h1 class="neon-sign mb-4 text-3xl" style="color: var(--text-primary);">
-				{m.empty_heading()}
-			</h1>
-			<p class="text-lg" style="color: var(--text-secondary);">
-				{m.empty_message()}
-			</p>
+
+		<div class="flex-1" data-testid="dish-card-container" style="max-width: 320px;">
+			<DishCard
+				image={resolveImageUrl(dishes[1].imagePath)}
+				name={dishes[1].name}
+				description={dishes[1].description}
+				imageAttribution={dishes[1].imageAttribution}
+				onclick={() => handleVote(dishes[1].id, dishes[0].id)}
+				{loading}
+			/>
 		</div>
-	{/if}
+	</div>
 </div>

@@ -29,6 +29,7 @@
 
 <button
 	type="button"
+	data-testid="dish-card"
 	class="diner-card relative flex cursor-pointer flex-col overflow-hidden text-left focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
 	class:neon-glow={selected &&
 		typeof window !== 'undefined' &&

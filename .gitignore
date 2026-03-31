@@ -18,3 +18,7 @@ worker-configuration.d.ts
 # Tool directories
 .opencode/
 .runtime/
+
+# Playwright
+/playwright-report/
+/test-results/

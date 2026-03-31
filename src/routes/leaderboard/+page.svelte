@@ -17,7 +17,7 @@
 	{#if top3.length > 0}
 		<div class="mb-12 flex items-end justify-center gap-6">
 			{#if top3[1]}
-				<div class="flex flex-col items-center">
+				<div data-testid="podium-silver" class="flex flex-col items-center">
 					<div
 						class="static-card mb-3 overflow-hidden rounded-xl"
 						style="background: var(--card-bg); border: 1px solid var(--card-border);"
@@ -41,7 +41,7 @@
 			{/if}
 
 			{#if top3[0]}
-				<div class="flex flex-col items-center">
+				<div data-testid="podium-gold" class="flex flex-col items-center">
 					<div
 						class="static-card mb-3 overflow-hidden rounded-xl"
 						style="background: var(--card-bg); border: 1px solid var(--card-border);"
@@ -65,7 +65,7 @@
 			{/if}
 
 			{#if top3[2]}
-				<div class="flex flex-col items-center">
+				<div data-testid="podium-bronze" class="flex flex-col items-center">
 					<div
 						class="static-card mb-3 overflow-hidden rounded-xl"
 						style="background: var(--card-bg); border: 1px solid var(--card-border);"

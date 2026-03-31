@@ -71,14 +71,17 @@
 	<header class="diner-header py-5">
 		<nav class="mx-auto flex max-w-5xl items-center justify-between px-6">
 			<a
-				href="/"
+				href={localizeHref('/')}
 				class="neon-sign flex items-center gap-3 text-2xl text-white transition-transform hover:scale-[1.02]"
 			>
 				<span class="text-3xl">🥔</span>
 				<span>{m.site_title()}</span>
 			</a>
 			<div class="flex items-center gap-3">
-				<a href="/leaderboard" class="diner-btn px-5 py-2.5 text-sm font-semibold text-white">
+				<a
+					href={localizeHref('/leaderboard')}
+					class="diner-btn px-5 py-2.5 text-sm font-semibold text-white"
+				>
 					🏆 {m.hall_of_fame()}
 				</a>
 				{#if mounted}
@@ -131,7 +134,7 @@
 </div>
 
 <div style="display:none">
-	{#each locales as locale}
+	{#each locales as locale (locale)}
 		<a href={localizeHref(page.url.pathname, { locale })}>{locale}</a>
 	{/each}
 </div>
