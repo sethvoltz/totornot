@@ -21,7 +21,7 @@ if (import.meta.hot) {
 }
 
 export function initDishes(initial: Dish[]) {
-	if (currentDishes.length === 0 && initial.length > 0) {
+	if (initial.length > 0) {
 		currentDishes = initial;
 	}
 }
