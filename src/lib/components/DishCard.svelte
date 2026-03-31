@@ -69,7 +69,7 @@
 				style="background-color: var(--bg-tertiary);"
 			></div>
 		{:else}
-			<img src={image} alt={name} class="h-full w-full object-cover" />
+			<img src={image} alt={name} class="h-full w-full object-cover" fetchpriority="high" />
 		{/if}
 	</div>
 
