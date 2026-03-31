@@ -49,6 +49,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate types
+        run: pnpm gen
+
       - name: Run type check
         run: pnpm check
 
@@ -69,6 +72,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Generate types
+        run: pnpm gen
 
       - name: Run unit tests
         run: pnpm test:unit -- --run
@@ -91,6 +97,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Generate types
+        run: pnpm gen
 
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps
