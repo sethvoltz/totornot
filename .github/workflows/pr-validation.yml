@@ -76,11 +76,36 @@ jobs:
       - name: Generate types
         run: pnpm gen
 
+      - name: Run unit tests
+        run: pnpm test:unit -- --run
+
+  storybook-tests:
+    name: Storybook Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate types
+        run: pnpm gen
+
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps
 
-      - name: Run unit tests
-        run: pnpm test:unit -- --run
+      - name: Run Storybook tests
+        run: pnpm test:storybook -- --run
 
   e2e-tests:
     name: E2E Tests

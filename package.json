@@ -17,6 +17,7 @@
 		"test:unit": "vitest",
 		"test": "npm run test:unit -- --run && npm run test:e2e",
 		"test:e2e": "playwright test",
+		"test:storybook": "vitest --config vitest.storybook.config.ts",
 		"gen": "wrangler types && pnpm gen:paraglide",
 		"gen:paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide",
 		"db:push": "drizzle-kit push",
