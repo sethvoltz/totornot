@@ -43,6 +43,11 @@
 	}
 </script>
 
+<svelte:head>
+	<title>{m.site_title()}</title>
+	<meta name="description" content={m.voting_subheading()} />
+</svelte:head>
+
 <div class="mx-auto max-w-5xl px-6 py-16">
 	<div class="mb-12 text-center">
 		<h1 class="neon-sign text-4xl md:text-5xl" style="color: var(--text-primary);">

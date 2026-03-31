@@ -9,6 +9,11 @@
 	const rest = $derived(data.dishes.slice(3, 10));
 </script>
 
+<svelte:head>
+	<title>{m.hall_of_fame()} | {m.site_title()}</title>
+	<meta name="description" content="The top-ranked potato dishes as voted by the community." />
+</svelte:head>
+
 <div class="mx-auto max-w-4xl px-6 py-16">
 	<h1 class="neon-sign mb-12 text-center text-4xl" style="color: var(--text-primary);">
 		{m.hall_of_fame()}

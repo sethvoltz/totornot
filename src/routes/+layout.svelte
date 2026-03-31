@@ -126,7 +126,7 @@
 
 	<footer
 		class="border-t py-6 text-center text-sm"
-		style="border-color: var(--card-border); background-color: var(--bg-secondary); color: var(--text-muted);"
+		style="border-color: var(--card-border); background-color: var(--bg-secondary); color: var(--text-secondary);"
 	>
 		<p>{m.footer_tagline()}</p>
 		<p class="mt-1">&copy; 2026 Tot or Not</p>

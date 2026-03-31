@@ -22,3 +22,6 @@ worker-configuration.d.ts
 # Playwright
 /playwright-report/
 /test-results/
+
+# Lighthouse
+.lighthouse/
