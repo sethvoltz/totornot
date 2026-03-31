@@ -76,6 +76,9 @@ jobs:
       - name: Generate types
         run: pnpm gen
 
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps
+
       - name: Run unit tests
         run: pnpm test:unit -- --run
 
