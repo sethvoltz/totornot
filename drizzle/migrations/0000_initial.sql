@@ -39,7 +39,7 @@ INSERT INTO dishes (id, name, description, image_path, elo, created_at) VALUES
 	('f6a7b8c9-d0e1-2345-f123-456789012345', 'Hash Browns', 'Shredded potato patties pan-fried until golden and crispy', 'hash-browns.jpg', 1200, unixepoch()),
 	('a7b8c9d0-e1f2-3456-1234-567890123456', 'Potato Gratin', 'Thinly sliced potatoes layered with cream and melted cheese', 'potato-gratin.jpg', 1200, unixepoch()),
 	('b8c9d0e1-f2a3-4567-2345-678901234567', 'Shepherd''s Pie', 'Savory meat filling topped with fluffy mashed potato crust', 'shepherds-pie.jpg', 1200, unixepoch()),
-	('c9d0e1f2-a3b4-5678-3456-789012345678', 'Potato Gnocchi', 'Soft pillowy potato dumplings served with your favourite sauce', 'potato-gnocchi.jpg', 1200, unixepoch()),
+	('c9d0e1f2-a3b4-5678-3456-789012345678', 'Potato Gnocchi', 'Soft pillowy potato dumplings served with your favorite sauce', 'potato-gnocchi.jpg', 1200, unixepoch()),
 	('d0e1f2a3-b4c5-6789-4567-890123456789', 'Potato Latkes', 'Crispy pan-fried potato pancakes traditionally served with sour cream', 'potato-latkes.jpg', 1200, unixepoch());
 
 -- Seed: Additional 20 potato dishes

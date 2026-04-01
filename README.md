@@ -1,6 +1,6 @@
 # Tot or Not
 
-A side-by-side rating app powered by Elo ratings. Two items enter, one item leaves. Vote for your favourite, watch the global rankings shift.
+A side-by-side rating app powered by Elo ratings. Two items enter, one item leaves. Vote for your favorite, watch the global rankings shift.
 
 - **No accounts** — just vote
 - **Elo ranking** — zero-sum, globally consistent scores
