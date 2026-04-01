@@ -1,16 +1,13 @@
 <script lang="ts">
 	import DishCard from '$lib/components/DishCard.svelte';
-	import { initDishes, setDishes, getCurrentDishes, type Dish } from '$lib/dishes-state';
-	import { untrack } from 'svelte';
+	import type { Dish } from '$lib/types';
 	import type { PageData } from './$types';
 	import * as m from '$lib/paraglide/messages';
 	import { resolveImageUrl } from '$lib/utils/image';
 
 	let { data }: { data: PageData } = $props();
 
-	untrack(() => initDishes(data.dishes || []));
-
-	let dishes = $state(getCurrentDishes());
+	let dishes = $state<Dish[]>(data.dishes as Dish[]);
 
 	let busy = $state(false);
 	let winnerId = $state('');
@@ -71,9 +68,7 @@
 			const [, dishesResponse] = await apiResult;
 			if (dishesResponse.ok) {
 				const result = (await dishesResponse.json()) as { dishes: Dish[] };
-				const newDishes = result.dishes || [];
-				setDishes(newDishes);
-				dishes = newDishes;
+				dishes = result.dishes || [];
 			}
 		} catch (err) {
 			console.error('Vote error:', err);
