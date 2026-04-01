@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1](https://github.com/sethvoltz/totornot/compare/totornot-v1.1.0...totornot-v1.1.1) (2026-04-01)
+
+
+### Bug Fixes
+
+* add push trigger to release workflow ([#19](https://github.com/sethvoltz/totornot/issues/19)) ([618e1fe](https://github.com/sethvoltz/totornot/commit/618e1fed56511302f763efe08dc8796525f61981))
+* only trigger release on merged autorelease PRs ([#21](https://github.com/sethvoltz/totornot/issues/21)) ([52fc445](https://github.com/sethvoltz/totornot/commit/52fc445f0e37f4ac8a96d54c84fe9aa780dbb934))
+
 ## [1.1.0](https://github.com/sethvoltz/totornot/compare/totornot-v1.0.0...totornot-v1.1.0) (2026-04-01)
 
 
