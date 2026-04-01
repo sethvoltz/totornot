@@ -6,7 +6,7 @@ export default defineConfig({
 			? 'pnpm build && pnpm wrangler dev .svelte-kit/cloudflare/_worker.js --port 4173 --local'
 			: 'pnpm build && pnpm preview',
 		port: 4173,
-		reuseExistingServer: !process.env.CI
+		reuseExistingServer: false
 	},
 
 	testMatch: '**/*.e2e.{ts,js}',
