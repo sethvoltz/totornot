@@ -5,6 +5,7 @@ declare global {
 		interface Platform {
 			env: Env & {
 				DB: D1Database;
+				PUBLIC_TURNSTILE_SITE_KEY: string;
 				TURNSTILE_SECRET_KEY: string;
 			};
 			ctx: ExecutionContext;
