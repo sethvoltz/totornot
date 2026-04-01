@@ -10,36 +10,84 @@
 
 	untrack(() => initDishes(data.dishes || []));
 
-	let loading = $state(false);
 	let dishes = $state(getCurrentDishes());
 
-	async function handleVote(winnerId: string, loserId: string) {
-		if (loading) return;
+	let busy = $state(false);
+	let winnerId = $state('');
+	let loserId = $state('');
+	let fading = $state(false);
 
-		loading = true;
+	// Measured at vote time so the slide is exact regardless of screen size
+	let leftSlide = $state(0);
+	let rightSlide = $state(0);
 
-		try {
-			const voteResponse = await fetch('/api/vote', {
+	// DOM refs
+	let arenaEl = $state<HTMLElement>();
+	let leftCardEl = $state<HTMLElement>();
+	let rightCardEl = $state<HTMLElement>();
+
+	function delay(ms: number) {
+		return new Promise<void>((r) => setTimeout(r, ms));
+	}
+
+	async function handleVote(selectedWinnerId: string, selectedLoserId: string) {
+		if (busy) return;
+
+		// Measure once, before any state changes move things around
+		if (arenaEl && leftCardEl && rightCardEl) {
+			const arenaRect = arenaEl.getBoundingClientRect();
+			const leftRect = leftCardEl.getBoundingClientRect();
+			const rightRect = rightCardEl.getBoundingClientRect();
+			const center = arenaRect.left + arenaRect.width / 2;
+			leftSlide = center - (leftRect.left + leftRect.width / 2);
+			rightSlide = center - (rightRect.left + rightRect.width / 2);
+		}
+
+		busy = true;
+		winnerId = selectedWinnerId;
+		loserId = selectedLoserId;
+
+		// Kick off API calls immediately
+		const apiResult = Promise.all([
+			fetch('/api/vote', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ winnerId, loserId })
-			});
+				body: JSON.stringify({ winnerId: selectedWinnerId, loserId: selectedLoserId })
+			}),
+			fetch('/api/dishes/random')
+		]);
 
-			if (!voteResponse.ok) {
-				throw new Error('Vote failed');
-			}
+		// Wait for slide animation (CSS transition: 500ms)
+		await delay(500);
+		// Hold with "Winner!" visible
+		await delay(1000);
 
-			const dishesResponse = await fetch('/api/dishes/random');
+		// Fade out
+		fading = true;
+		await delay(300);
+
+		// Swap dishes while invisible
+		try {
+			const [, dishesResponse] = await apiResult;
 			if (dishesResponse.ok) {
 				const result = (await dishesResponse.json()) as { dishes: Dish[] };
-				setDishes(result.dishes || []);
-				dishes = result.dishes || [];
+				const newDishes = result.dishes || [];
+				setDishes(newDishes);
+				dishes = newDishes;
 			}
-		} catch (error) {
-			console.error('Vote error:', error);
-		} finally {
-			loading = false;
+		} catch (err) {
+			console.error('Vote error:', err);
 		}
+
+		// Clear animation state (still invisible)
+		winnerId = '';
+		loserId = '';
+		leftSlide = 0;
+		rightSlide = 0;
+
+		// Fade back in
+		fading = false;
+		busy = false;
 	}
 </script>
 
@@ -58,36 +106,59 @@
 		</p>
 	</div>
 
-	<div class="flex items-center justify-center gap-8 md:gap-12">
-		<div class="flex-1" data-testid="dish-card-container" style="max-width: 320px;">
-			<DishCard
-				image={resolveImageUrl(dishes[0].imagePath)}
-				name={dishes[0].name}
-				description={dishes[0].description}
-				imageAttribution={dishes[0].imageAttribution}
-				onclick={() => handleVote(dishes[0].id, dishes[1].id)}
-				{loading}
-			/>
-		</div>
-
-		<div class="flex flex-col items-center justify-center px-2">
+	<div class="voting-arena" bind:this={arenaEl}>
+		<div class="voting-arena-inner flex items-center justify-center gap-8 md:gap-12" class:fading>
+			<!-- Left card -->
 			<div
-				class="flex h-16 w-16 items-center justify-center rounded-full md:h-20 md:w-20"
-				style="background-color: var(--bg-secondary);"
+				class="vote-card-wrap flex-1"
+				class:winner={dishes[0].id === winnerId}
+				class:loser={dishes[0].id === loserId}
+				style="max-width: 320px; --slide-x: {leftSlide}px;"
+				data-testid="dish-card-container"
+				bind:this={leftCardEl}
 			>
-				<span data-testid="vs-badge" class="vs-badge text-xl md:text-2xl">{m.vs()}</span>
+				{#if dishes[0].id === winnerId}
+					<div class="winner-label">{m.winner()}</div>
+				{/if}
+				<DishCard
+					image={resolveImageUrl(dishes[0].imagePath)}
+					name={dishes[0].name}
+					description={dishes[0].description}
+					imageAttribution={dishes[0].imageAttribution}
+					onclick={() => handleVote(dishes[0].id, dishes[1].id)}
+				/>
 			</div>
-		</div>
 
-		<div class="flex-1" data-testid="dish-card-container" style="max-width: 320px;">
-			<DishCard
-				image={resolveImageUrl(dishes[1].imagePath)}
-				name={dishes[1].name}
-				description={dishes[1].description}
-				imageAttribution={dishes[1].imageAttribution}
-				onclick={() => handleVote(dishes[1].id, dishes[0].id)}
-				{loading}
-			/>
+			<!-- VS badge -->
+			<div class="flex shrink-0 flex-col items-center justify-center px-2">
+				<div
+					class="flex h-16 w-16 items-center justify-center rounded-full md:h-20 md:w-20"
+					style="background-color: var(--bg-secondary);"
+				>
+					<span data-testid="vs-badge" class="vs-badge text-xl md:text-2xl">{m.vs()}</span>
+				</div>
+			</div>
+
+			<!-- Right card -->
+			<div
+				class="vote-card-wrap flex-1"
+				class:winner={dishes[1].id === winnerId}
+				class:loser={dishes[1].id === loserId}
+				style="max-width: 320px; --slide-x: {rightSlide}px;"
+				data-testid="dish-card-container"
+				bind:this={rightCardEl}
+			>
+				{#if dishes[1].id === winnerId}
+					<div class="winner-label">{m.winner()}</div>
+				{/if}
+				<DishCard
+					image={resolveImageUrl(dishes[1].imagePath)}
+					name={dishes[1].name}
+					description={dishes[1].description}
+					imageAttribution={dishes[1].imageAttribution}
+					onclick={() => handleVote(dishes[1].id, dishes[0].id)}
+				/>
+			</div>
 		</div>
 	</div>
 </div>

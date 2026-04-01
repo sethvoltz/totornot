@@ -1,4 +1,6 @@
 <script lang="ts">
+	import * as m from '$lib/paraglide/messages';
+
 	interface Props {
 		image: string;
 		name: string;
@@ -7,6 +9,7 @@
 		onclick?: () => void;
 		loading?: boolean;
 		selected?: boolean;
+		isWinner?: boolean;
 	}
 
 	const {
@@ -16,7 +19,8 @@
 		imageAttribution,
 		onclick,
 		loading = false,
-		selected = false
+		selected = false,
+		isWinner = false
 	}: Props = $props();
 
 	const fullDescription = $derived(() => {
@@ -39,6 +43,11 @@
 	aria-pressed={selected}
 	disabled={loading}
 >
+	{#if isWinner}
+		<div class="winner-text-overlay">
+			{m.winner()}
+		</div>
+	{/if}
 	{#if selected && !loading}
 		<div
 			class="absolute top-3 right-3 z-10 flex h-7 w-7 items-center justify-center rounded-full text-white shadow-lg"
