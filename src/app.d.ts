@@ -5,6 +5,7 @@ declare global {
 		interface Platform {
 			env: Env & {
 				DB: D1Database;
+				PUBLIC_TURNSTILE_SITE_KEY: string;
 				TURNSTILE_SECRET_KEY: string;
 			};
 			ctx: ExecutionContext;
@@ -16,6 +17,20 @@ declare global {
 		// interface Locals {}
 		// interface PageData {}
 		// interface PageState {}
+	}
+
+	interface Window {
+		turnstile: {
+			render: (container: string | HTMLElement, options: TurnstileRenderOptions) => string;
+			reset: (widgetId: string) => void;
+			remove: (widgetId: string) => void;
+		};
+	}
+
+	interface TurnstileRenderOptions {
+		sitekey: string;
+		callback?: (token: string) => void;
+		theme?: 'light' | 'dark' | 'auto';
 	}
 }
 

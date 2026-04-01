@@ -8,5 +8,21 @@
 	"voting_heading": "Which Tot's Hot?",
 	"voting_subheading": "Pick your favorite to cast your vote",
 	"winner": "Winner!",
-	"vs": "VS"
+	"vs": "VS",
+	"tip_line_title": "Potato Tip Line",
+	"tip_line_subheading": "Know a potato dish we missed? Drop us a tip!",
+	"tip_line_disclaimer": "This is all for fun! We'll ignore inappropriate suggestions at our discretion.",
+	"tip_dish_name_label": "Dish Name",
+	"tip_dish_name_placeholder": "e.g., Potato Pizza",
+	"tip_description_label": "Description",
+	"tip_description_placeholder": "Tell us about this dish...",
+	"tip_submitter_name_label": "Your Name (optional)",
+	"tip_submitter_name_placeholder": "For credit if we add your dish",
+	"tip_submitter_name_disclaimer": "Inappropriate names won't be credited",
+	"tip_submit": "Submit Tip",
+	"tip_submitting": "Submitting...",
+	"tip_success": "Thanks for the tip! We'll review your submission.",
+	"tip_error_generic": "Something went wrong. Please try again.",
+	"tip_error_rate_limited": "Too many submissions. Please try again later.",
+	"suggest_a_dish": "Suggest a Dish"
 }

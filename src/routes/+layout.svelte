@@ -128,7 +128,13 @@
 		class="border-t py-6 text-center text-sm"
 		style="border-color: var(--card-border); background-color: var(--bg-secondary); color: var(--text-secondary);"
 	>
-		<p>{m.footer_tagline()}</p>
+		<p>
+			{m.footer_tagline()}
+			<span class="mx-2">•</span>
+			<a href={localizeHref('/tip')} class="hover:underline" style="color: var(--accent-primary);">
+				{m.suggest_a_dish()}
+			</a>
+		</p>
 		<p class="mt-1">&copy; 2026 Tot or Not</p>
 	</footer>
 </div>
