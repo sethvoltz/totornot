@@ -29,7 +29,6 @@ CREATE TABLE IF NOT EXISTS rate_limits (
 	count INTEGER NOT NULL DEFAULT 1
 );
 
--- Seed: Initial 10 potato dishes
 INSERT INTO dishes (id, name, description, image_path, elo, created_at) VALUES
 	('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'Mashed Potatoes', 'Creamy whipped potatoes with butter and cream', 'mashed-potatoes.jpg', 1200, unixepoch()),
 	('b2c3d4e5-f6a7-8901-bcde-f12345678901', 'French Fries', 'Crispy golden-fried potato strips', 'french-fries.jpg', 1200, unixepoch()),
@@ -39,11 +38,8 @@ INSERT INTO dishes (id, name, description, image_path, elo, created_at) VALUES
 	('f6a7b8c9-d0e1-2345-f123-456789012345', 'Hash Browns', 'Shredded potato patties pan-fried until golden and crispy', 'hash-browns.jpg', 1200, unixepoch()),
 	('a7b8c9d0-e1f2-3456-1234-567890123456', 'Potato Gratin', 'Thinly sliced potatoes layered with cream and melted cheese', 'potato-gratin.jpg', 1200, unixepoch()),
 	('b8c9d0e1-f2a3-4567-2345-678901234567', 'Shepherd''s Pie', 'Savory meat filling topped with fluffy mashed potato crust', 'shepherds-pie.jpg', 1200, unixepoch()),
-	('c9d0e1f2-a3b4-5678-3456-789012345678', 'Potato Gnocchi', 'Soft pillowy potato dumplings served with your favourite sauce', 'potato-gnocchi.jpg', 1200, unixepoch()),
-	('d0e1f2a3-b4c5-6789-4567-890123456789', 'Potato Latkes', 'Crispy pan-fried potato pancakes traditionally served with sour cream', 'potato-latkes.jpg', 1200, unixepoch());
-
--- Seed: Additional 20 potato dishes
-INSERT INTO dishes (id, name, description, image_path, elo, created_at) VALUES
+	('c9d0e1f2-a3b4-5678-3456-789012345678', 'Potato Gnocchi', 'Soft pillowy potato dumplings served with your favorite sauce', 'potato-gnocchi.jpg', 1200, unixepoch()),
+	('d0e1f2a3-b4c5-6789-4567-890123456789', 'Potato Latkes', 'Crispy pan-fried potato pancakes traditionally served with sour cream', 'potato-latkes.jpg', 1200, unixepoch()),
 	('a7c3e9f1-2b4d-5f8a-9c1e-3d7b5f2a8c6e', 'Potato Wedges', 'Thick-cut seasoned potato wedges baked until crispy', 'potato-wedges.jpg', 1200, unixepoch()),
 	('b8d4f0a2-3c5e-6b9f-0d2f-4e8c6a3b9d7f', 'Scalloped Potatoes', 'Thinly sliced potatoes baked in a creamy sauce', 'scalloped-potatoes.jpg', 1200, unixepoch()),
 	('c9e5a1b3-4d6f-7c0a-1e3a-5f9d7b4c0e8a', 'Potato Skins', 'Crispy roasted potato skins loaded with cheese and bacon', 'potato-skins.jpg', 1200, unixepoch()),

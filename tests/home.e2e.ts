@@ -6,7 +6,7 @@ test.describe('Home Page - Voting Flow', () => {
 
 		// Select by visible text from i18n messages
 		await expect(page.getByText("Which Tot's Hot?")).toBeVisible();
-		await expect(page.getByText('Pick your favourite to cast your vote')).toBeVisible();
+		await expect(page.getByText('Pick your favorite to cast your vote')).toBeVisible();
 
 		// VS badge
 		await expect(page.getByTestId('vs-badge')).toBeVisible();

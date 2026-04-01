@@ -63,12 +63,12 @@ describe('processVote', () => {
 		expect(winner + loser).toBeCloseTo(initial, 10);
 	});
 
-	it('underdog gains more than favourite when underdog wins', () => {
+	it('underdog gains more than favorite when underdog wins', () => {
 		const { winner: underdogWins } = processVote(1000, 1200);
-		const { winner: favouriteWins } = processVote(1200, 1000);
+		const { winner: favoriteWins } = processVote(1200, 1000);
 		const underdogGain = underdogWins - 1000;
-		const favouriteGain = favouriteWins - 1200;
-		expect(underdogGain).toBeGreaterThan(favouriteGain);
+		const favoriteGain = favoriteWins - 1200;
+		expect(underdogGain).toBeGreaterThan(favoriteGain);
 	});
 
 	it('respects custom K factor', () => {
