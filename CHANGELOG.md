@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.2.0](https://github.com/sethvoltz/totornot/compare/totornot-v1.1.1...totornot-v1.2.0) (2026-04-01)
+
+
+### Features
+
+* add tip line for dish suggestions ([#23](https://github.com/sethvoltz/totornot/issues/23)) ([06f945d](https://github.com/sethvoltz/totornot/commit/06f945d8ad28323804b7ef60a964894553ed3d00))
+
+
+### Bug Fixes
+
+* add PUBLIC_TURNSTILE_SITE_KEY to wrangler config ([#25](https://github.com/sethvoltz/totornot/issues/25)) ([3443c75](https://github.com/sethvoltz/totornot/commit/3443c75f80f980bb1098c3a33bb63427b2acaf0f))
+* **ci:** add proper pnpm and Playwright browser caching ([#24](https://github.com/sethvoltz/totornot/issues/24)) ([f153948](https://github.com/sethvoltz/totornot/commit/f153948f7799a9b36c59ef140aeccb8d83e340ab))
+
 ## [1.1.1](https://github.com/sethvoltz/totornot/compare/totornot-v1.1.0...totornot-v1.1.1) (2026-04-01)
 
 
