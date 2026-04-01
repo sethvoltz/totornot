@@ -10,6 +10,7 @@
 		loading?: boolean;
 		selected?: boolean;
 		isWinner?: boolean;
+		disabled?: boolean;
 	}
 
 	const {
@@ -20,7 +21,8 @@
 		onclick,
 		loading = false,
 		selected = false,
-		isWinner = false
+		isWinner = false,
+		disabled = false
 	}: Props = $props();
 
 	const fullDescription = $derived(() => {
@@ -41,7 +43,7 @@
 	style="{selected ? 'transform: scale(1.02);' : ''} max-width: 320px;"
 	{onclick}
 	aria-pressed={selected}
-	disabled={loading}
+	disabled={loading || disabled}
 >
 	{#if isWinner}
 		<div class="winner-text-overlay">

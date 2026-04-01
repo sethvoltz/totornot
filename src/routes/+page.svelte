@@ -126,6 +126,7 @@
 					description={dishes[0].description}
 					imageAttribution={dishes[0].imageAttribution}
 					onclick={() => handleVote(dishes[0].id, dishes[1].id)}
+					loading={busy}
 				/>
 			</div>
 
@@ -157,6 +158,7 @@
 					description={dishes[1].description}
 					imageAttribution={dishes[1].imageAttribution}
 					onclick={() => handleVote(dishes[1].id, dishes[0].id)}
+					loading={busy}
 				/>
 			</div>
 		</div>
