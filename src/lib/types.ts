@@ -5,6 +5,7 @@ export interface Dish {
 	imagePath: string | null;
 	imageAttribution: string | null;
 	elo: number;
+	submittedBy: string | null;
 	createdAt: Date;
 }
 
@@ -22,4 +23,15 @@ export interface VoteResponse {
 	success: boolean;
 	newWinnerElo: number;
 	newLoserElo: number;
+}
+
+export interface TipRequest {
+	dishName: string;
+	description: string;
+	submitterName?: string;
+	turnstileToken: string;
+}
+
+export interface TipResponse {
+	success: boolean;
 }

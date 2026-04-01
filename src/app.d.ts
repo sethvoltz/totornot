@@ -17,6 +17,20 @@ declare global {
 		// interface PageData {}
 		// interface PageState {}
 	}
+
+	interface Window {
+		turnstile: {
+			render: (container: string | HTMLElement, options: TurnstileRenderOptions) => string;
+			reset: (widgetId: string) => void;
+			remove: (widgetId: string) => void;
+		};
+	}
+
+	interface TurnstileRenderOptions {
+		sitekey: string;
+		callback?: (token: string) => void;
+		theme?: 'light' | 'dark' | 'auto';
+	}
 }
 
 export {};
