@@ -24,6 +24,9 @@
 			"migrations_dir": "drizzle/migrations"
 		}
 	],
+	"vars": {
+		"PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAACzHo2u6bADs4BEJ"
+	},
 	"env": {
 		"staging": {
 			"name": "totornot-staging",
@@ -41,7 +44,10 @@
 					"database_id": "926bccdc-55dc-4963-9603-5a317336742c",
 					"migrations_dir": "drizzle/migrations"
 				}
-			]
+			],
+			"vars": {
+				"PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAACzHo2u6bADs4BEJ"
+			}
 		}
 	}
 }
