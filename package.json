@@ -7,10 +7,10 @@
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
-		"preview": "wrangler dev .svelte-kit/cloudflare/_worker.js --port 4173",
+		"preview": "pnpmrun build && wrangler dev",
 		"prepare": "husky",
 		"clean": "rm -rf .svelte-kit",
-		"check": "pnpm clean && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
@@ -23,11 +23,15 @@
 		"db:push": "drizzle-kit push",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
+		"db:migrate:staging": "wrangler d1 migrations apply totornot-staging --env staging --remote",
+		"db:migrate:production": "wrangler d1 migrations apply totornot --remote",
 		"db:studio": "drizzle-kit studio",
 		"storybook": "storybook dev -p 6006",
 		"build-storybook": "storybook build",
 		"lighthouse": "node scripts/lighthouse.js",
-		"lighthouse:view": "lhci open"
+		"lighthouse:view": "lhci open",
+		"deploy": "wrangler deploy",
+		"deploy:staging": "wrangler deploy --env staging"
 	},
 	"devDependencies": {
 		"@chromatic-com/storybook": "^5.1.1",
