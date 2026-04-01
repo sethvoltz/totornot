@@ -58,6 +58,12 @@ test.describe('Home Page - Voting Flow', () => {
 		await page.goto('/');
 
 		const dishCards = page.getByTestId('dish-card');
+
+		// Wait for async load; skip only if truly no dishes in DB
+		await dishCards
+			.first()
+			.waitFor({ state: 'visible', timeout: 5000 })
+			.catch(() => {});
 		const cardCount = await dishCards.count();
 
 		// Skip if no dishes (empty state)

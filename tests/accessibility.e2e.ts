@@ -27,6 +27,12 @@ test.describe('Accessibility', () => {
 		await page.goto('/');
 
 		const dishCards = page.getByTestId('dish-card');
+
+		// Wait for async load; skip only if truly no dishes in DB
+		await dishCards
+			.first()
+			.waitFor({ state: 'visible', timeout: 5000 })
+			.catch(() => {});
 		const cardCount = await dishCards.count();
 
 		// Skip if no dishes
@@ -63,6 +69,13 @@ test.describe('Accessibility', () => {
 
 	test('images have alt text', async ({ page }) => {
 		await page.goto('/');
+
+		// Wait for dish cards to load before counting images
+		await page
+			.getByTestId('dish-card')
+			.first()
+			.waitFor({ state: 'visible', timeout: 5000 })
+			.catch(() => {});
 
 		const images = page.locator('img');
 		const count = await images.count();

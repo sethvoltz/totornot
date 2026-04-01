@@ -1,10 +1,11 @@
 export interface Dish {
 	id: string;
 	name: string;
-	description: string;
-	imagePath: string;
-	eloScore: number;
-	voteCount: number;
+	description: string | null;
+	imagePath: string | null;
+	imageAttribution: string | null;
+	elo: number;
+	createdAt: Date;
 }
 
 export interface MatchupResponse {
