@@ -35,26 +35,26 @@ UPDATE dishes SET image_attribution = 'Photo by Sabrina Spotti via Wikimedia Com
 -- 10. Potato Latkes (CC-BY-SA - Ich)
 UPDATE dishes SET image_attribution = 'Photo by Ich via Wikimedia Commons, CC-BY-SA 4.0' WHERE name = 'Potato Latkes';
 
--- 11. Potato Wedges (Original - not modified)
-UPDATE dishes SET image_attribution = NULL WHERE name = 'Potato Wedges';
+-- 11. Potato Wedges (CC-BY-SA 4.0 - Raj1818913)
+UPDATE dishes SET image_attribution = 'Photo by Raj1818913 via Wikimedia Commons, CC-BY-SA 4.0' WHERE name = 'Potato Wedges';
 
--- 12. Scalloped Potatoes (Original - not modified)
-UPDATE dishes SET image_attribution = NULL WHERE name = 'Scalloped Potatoes';
+-- 12. Scalloped Potatoes (CC-BY-SA 3.0 - Ludovic Péron)
+UPDATE dishes SET image_attribution = 'Photo by Ludovic Péron via Wikimedia Commons, CC-BY-SA 3.0' WHERE name = 'Scalloped Potatoes';
 
--- 13. Potato Skins (Original - not modified)
-UPDATE dishes SET image_attribution = NULL WHERE name = 'Potato Skins';
+-- 13. Potato Skins (CC-BY 2.0 - Andy Bullock)
+UPDATE dishes SET image_attribution = 'Photo by Andy Bullock via Wikimedia Commons, CC-BY 2.0' WHERE name = 'Potato Skins';
 
--- 14. Tater Tots (Original - not modified)
-UPDATE dishes SET image_attribution = NULL WHERE name = 'Tater Tots';
+-- 14. Tater Tots (CC-BY - formulanone)
+UPDATE dishes SET image_attribution = 'Photo by formulanone via Wikimedia Commons, CC-BY' WHERE name = 'Tater Tots';
 
 -- 15. Potato Chips (CC-BY-SA - Evan-Amos)
 UPDATE dishes SET image_attribution = 'Photo by Evan-Amos via Wikimedia Commons, CC-BY-SA 3.0' WHERE name = 'Potato Chips';
 
--- 16. Roasted Potatoes (Original - not modified)
-UPDATE dishes SET image_attribution = NULL WHERE name = 'Roasted Potatoes';
+-- 16. Roasted Potatoes (CC-BY-SA 4.0 - Emna Mizouni)
+UPDATE dishes SET image_attribution = 'Photo by Emna Mizouni via Wikimedia Commons, CC-BY-SA 4.0' WHERE name = 'Roasted Potatoes';
 
--- 17. Potato Pancakes (Original - not modified)
-UPDATE dishes SET image_attribution = NULL WHERE name = 'Potato Pancakes';
+-- 17. Potato Pancakes (CC-BY-SA 2.0 - Daniel Spils)
+UPDATE dishes SET image_attribution = 'Photo by Daniel Spils via Wikimedia Commons, CC-BY-SA 2.0' WHERE name = 'Potato Pancakes';
 
 -- 18. Colcannon (CC-BY - S Pakhrin)
 UPDATE dishes SET image_attribution = 'Photo by S Pakhrin via Wikimedia Commons, CC-BY 2.0' WHERE name = 'Colcannon';
@@ -68,8 +68,8 @@ UPDATE dishes SET image_attribution = 'Photo by Ocdp via Wikimedia Commons, CC-B
 -- 21. Patatas Bravas (CC-BY - Tamorlan)
 UPDATE dishes SET image_attribution = 'Photo by Tamorlan via Wikimedia Commons, CC-BY 4.0' WHERE name = 'Patatas Bravas';
 
--- 22. Potato Curry (Original - not modified)
-UPDATE dishes SET image_attribution = NULL WHERE name = 'Potato Curry';
+-- 22. Potato Curry (CC-BY-SA 2.0 - Paul Goyette)
+UPDATE dishes SET image_attribution = 'Photo by Paul Goyette via Wikimedia Commons, CC-BY-SA 2.0' WHERE name = 'Potato Curry';
 
 -- 23. Spanish Tortilla (CC-BY-SA - Juan Emilio Prades Bel)
 UPDATE dishes SET image_attribution = 'Photo by Juan Emilio Prades Bel via Wikimedia Commons, CC-BY-SA 4.0' WHERE name = 'Spanish Tortilla';
@@ -80,8 +80,8 @@ UPDATE dishes SET image_attribution = 'Photo by Mussklprozz via Wikimedia Common
 -- 25. Funeral Potatoes (CC-BY - Pingnova)
 UPDATE dishes SET image_attribution = 'Photo by Pingnova via Wikimedia Commons, CC-BY 4.0' WHERE name = 'Funeral Potatoes';
 
--- 26. Potato Leek Soup (Original - not modified)
-UPDATE dishes SET image_attribution = NULL WHERE name = 'Potato Leek Soup';
+-- 26. Potato Leek Soup (CC-BY-SA 2.0 - BocaDorada)
+UPDATE dishes SET image_attribution = 'Photo by BocaDorada via Wikimedia Commons, CC-BY-SA 2.0' WHERE name = 'Potato Leek Soup';
 
 -- 27. Pommes Anna (CC-BY - Herry Lawford)
 UPDATE dishes SET image_attribution = 'Photo by Herry Lawford via Wikimedia Commons, CC-BY 2.0' WHERE name = 'Pommes Anna';
@@ -89,11 +89,11 @@ UPDATE dishes SET image_attribution = 'Photo by Herry Lawford via Wikimedia Comm
 -- 28. Potato Pierogi (CC-BY-SA - Piotrus)
 UPDATE dishes SET image_attribution = 'Photo by Piotrus via Wikimedia Commons, CC-BY-SA 3.0' WHERE name = 'Potato Pierogi';
 
--- 29. Sweet Potato Fries (Original - not modified)
-UPDATE dishes SET image_attribution = NULL WHERE name = 'Sweet Potato Fries';
+-- 29. Sweet Potato Fries (CC-BY 2.0 - jeffreyw)
+UPDATE dishes SET image_attribution = 'Photo by jeffreyw via Wikimedia Commons, CC-BY 2.0' WHERE name = 'Sweet Potato Fries';
 
--- 30. Twice Baked Potatoes (Original - not modified)
-UPDATE dishes SET image_attribution = NULL WHERE name = 'Twice Baked Potatoes';
+-- 30. Twice Baked Potatoes (CC-BY-SA 3.0 - Mark James Miller)
+UPDATE dishes SET image_attribution = 'Photo by Mark James Miller via Wikimedia Commons, CC-BY-SA 3.0' WHERE name = 'Twice Baked Potatoes';
 
 -- Placeholder image (uncooked russet potato in soil)
 -- Used as generic placeholder when no specific dish image is available
