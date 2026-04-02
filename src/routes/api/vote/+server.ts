@@ -66,7 +66,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 
 		// Rate limiting
 		if (ipHash) {
-			const rateLimitResult = await checkRateLimit(db, ipHash, 'vote');
+			const rateLimitResult = await checkRateLimit(db, ipHash, 'vote', platform.env);
 
 			if (!rateLimitResult.allowed) {
 				return new Response(
