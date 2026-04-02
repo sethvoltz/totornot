@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/sethvoltz/totornot/compare/totornot-v1.3.0...totornot-v1.4.0) (2026-04-02)
+
+
+### Features
+
+* add IP tracking to votes and dish submissions ([#29](https://github.com/sethvoltz/totornot/issues/29)) ([79a9d06](https://github.com/sethvoltz/totornot/commit/79a9d060cef2aad5fb57f25aa7f843bc674b9a67))
+
 ## [1.3.0](https://github.com/sethvoltz/totornot/compare/totornot-v1.2.0...totornot-v1.3.0) (2026-04-02)
 
 
