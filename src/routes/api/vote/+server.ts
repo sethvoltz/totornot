@@ -34,16 +34,11 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 
 		const ip = request.headers.get('CF-Connecting-IP');
 		const ipHashSecret = platform?.env.IP_HASH_SECRET;
+		const ipHash = ip && ipHashSecret ? await hashIp(ip, ipHashSecret) : null;
 
 		if (!ipHashSecret) {
-			console.error('IP_HASH_SECRET not configured');
-			return new Response(JSON.stringify({ error: 'Server configuration error' }), {
-				status: 500,
-				headers: { 'Content-Type': 'application/json' }
-			});
+			console.warn('IP_HASH_SECRET not configured - rate limiting disabled');
 		}
-
-		const ipHash = ip ? await hashIp(ip, ipHashSecret) : null;
 
 		const body = (await request.json()) as { winnerId?: string; loserId?: string };
 		const { winnerId, loserId } = body;
@@ -66,7 +61,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 
 		// Rate limiting
 		if (ipHash) {
-			const rateLimitResult = await checkRateLimit(db, ipHash, 'vote', platform.env);
+			const rateLimitResult = await checkRateLimit(db, ipHash, 'vote', platform?.env);
 
 			if (!rateLimitResult.allowed) {
 				return new Response(
