@@ -1,0 +1,4 @@
+Contact: security@totornot.com
+Expires: 2027-04-02T23:59:59.000Z
+Preferred-Languages: en
+Canonical: https://totornot.com/.well-known/security.txt
