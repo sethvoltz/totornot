@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.5.0](https://github.com/sethvoltz/totornot/compare/totornot-v1.4.0...totornot-v1.5.0) (2026-04-02)
+
+
+### Features
+
+* implement comprehensive security hardening ([#32](https://github.com/sethvoltz/totornot/issues/32)) ([6685536](https://github.com/sethvoltz/totornot/commit/668553682b0a34d43167a4b286e9ad9e75d894ec))
+
+
+### Bug Fixes
+
+* rate limiter and remove Turnstile ([#34](https://github.com/sethvoltz/totornot/issues/34)) ([614dfe2](https://github.com/sethvoltz/totornot/commit/614dfe23f1b8137b845d55745ca24adc0af7139d))
+* rate limiter security hardening and Turnstile removal ([#33](https://github.com/sethvoltz/totornot/issues/33)) ([af994a2](https://github.com/sethvoltz/totornot/commit/af994a21f855d1121e2c3a606addfb78817ed4b1))
+* token bucket rate limiter ([#36](https://github.com/sethvoltz/totornot/issues/36)) ([3550dc0](https://github.com/sethvoltz/totornot/commit/3550dc0b9107e9b0f33d85898a68bca39b866b48))
+
 ## [1.4.0](https://github.com/sethvoltz/totornot/compare/totornot-v1.3.0...totornot-v1.4.0) (2026-04-02)
 
 
