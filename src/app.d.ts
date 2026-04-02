@@ -5,8 +5,8 @@ declare global {
 		interface Platform {
 			env: Env & {
 				DB: D1Database;
-				PUBLIC_TURNSTILE_SITE_KEY: string;
-				TURNSTILE_SECRET_KEY: string;
+				PUBLIC_TURNSTILE_SITE_KEY?: string;
+				TURNSTILE_SECRET_KEY?: string;
 				IP_HASH_SECRET: string;
 				VOTE_RATE_LIMIT_PER_HOUR?: string;
 				TIP_RATE_LIMIT_PER_HOUR?: string;
@@ -20,20 +20,6 @@ declare global {
 		// interface Locals {}
 		// interface PageData {}
 		// interface PageState {}
-	}
-
-	interface Window {
-		turnstile: {
-			render: (container: string | HTMLElement, options: TurnstileRenderOptions) => string;
-			reset: (widgetId: string) => void;
-			remove: (widgetId: string) => void;
-		};
-	}
-
-	interface TurnstileRenderOptions {
-		sitekey: string;
-		callback?: (token: string) => void;
-		theme?: 'light' | 'dark' | 'auto';
 	}
 }
 

@@ -8,11 +8,6 @@ const MAX_DISH_NAME_LENGTH = 150;
 const MAX_DESCRIPTION_LENGTH = 1000;
 const MAX_SUBMITTER_NAME_LENGTH = 100;
 
-interface TurnstileVerifyResponse {
-	success: boolean;
-	'error-codes'?: string[];
-}
-
 function validateCsrf(request: Request): boolean {
 	const origin = request.headers.get('Origin');
 	const referer = request.headers.get('Referer');
@@ -28,21 +23,6 @@ function validateCsrf(request: Request): boolean {
 	}
 
 	return false;
-}
-
-async function verifyTurnstile(token: string, secret: string, ip: string): Promise<boolean> {
-	const formData = new URLSearchParams();
-	formData.append('secret', secret);
-	formData.append('response', token);
-	formData.append('remoteip', ip);
-
-	const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-		method: 'POST',
-		body: formData
-	});
-
-	const result = (await response.json()) as TurnstileVerifyResponse;
-	return result.success === true;
 }
 
 export const POST: RequestHandler = async ({ request, platform }) => {
@@ -71,10 +51,9 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 			dishName?: string;
 			description?: string;
 			submitterName?: string;
-			turnstileToken?: string;
 		};
 
-		const { dishName, description, submitterName, turnstileToken } = body;
+		const { dishName, description, submitterName } = body;
 
 		if (!dishName || typeof dishName !== 'string' || dishName.trim().length === 0) {
 			return new Response(JSON.stringify({ error: 'Dish name is required' }), {
@@ -111,30 +90,6 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 					headers: { 'Content-Type': 'application/json' }
 				});
 			}
-		}
-
-		if (!turnstileToken || typeof turnstileToken !== 'string') {
-			return new Response(JSON.stringify({ error: 'Turnstile verification required' }), {
-				status: 400,
-				headers: { 'Content-Type': 'application/json' }
-			});
-		}
-
-		const turnstileSecret = platform?.env.TURNSTILE_SECRET_KEY;
-		if (!turnstileSecret) {
-			console.error('TURNSTILE_SECRET_KEY not configured');
-			return new Response(JSON.stringify({ error: 'Server configuration error' }), {
-				status: 500,
-				headers: { 'Content-Type': 'application/json' }
-			});
-		}
-
-		const turnstileValid = await verifyTurnstile(turnstileToken, turnstileSecret, ip);
-		if (!turnstileValid) {
-			return new Response(JSON.stringify({ error: 'Turnstile verification failed' }), {
-				status: 400,
-				headers: { 'Content-Type': 'application/json' }
-			});
 		}
 
 		const db = getDb(platform!.env.DB);

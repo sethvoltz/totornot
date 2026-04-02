@@ -29,7 +29,6 @@ export interface TipRequest {
 	dishName: string;
 	description: string;
 	submitterName?: string;
-	turnstileToken: string;
 }
 
 export interface TipResponse {
