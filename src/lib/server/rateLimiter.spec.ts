@@ -56,7 +56,7 @@ describe('rateLimiter', () => {
 				})
 			});
 
-			const result = await checkRateLimit(mockDb, 'test-fingerprint', 'vote', config);
+			const result = await checkRateLimit(mockDb, 'test-fingerprint', 'vote', undefined, config);
 
 			expect(result.allowed).toBe(false);
 			expect(result.retryAfter).toBeGreaterThan(0);
@@ -79,7 +79,7 @@ describe('rateLimiter', () => {
 				})
 			});
 
-			const result = await checkRateLimit(mockDb, 'test-fingerprint', 'vote', config);
+			const result = await checkRateLimit(mockDb, 'test-fingerprint', 'vote', undefined, config);
 
 			expect(result.allowed).toBe(false);
 			expect(result.retryAfter).toBeGreaterThanOrEqual(29);
@@ -108,7 +108,7 @@ describe('rateLimiter', () => {
 				values: vi.fn().mockResolvedValue(undefined)
 			});
 
-			const result = await checkRateLimit(mockDb, 'test-fingerprint', 'vote', config);
+			const result = await checkRateLimit(mockDb, 'test-fingerprint', 'vote', undefined, config);
 
 			expect(result.allowed).toBe(true);
 		});
@@ -141,7 +141,7 @@ describe('rateLimiter', () => {
 				})
 			});
 
-			await checkRateLimit(mockDb, 'test-fingerprint', 'vote', config);
+			await checkRateLimit(mockDb, 'test-fingerprint', 'vote', undefined, config);
 
 			expect(mockDb.insert).not.toHaveBeenCalled();
 		});
@@ -181,7 +181,7 @@ describe('rateLimiter', () => {
 				where: vi.fn().mockResolvedValue(undefined)
 			});
 
-			const result = await checkRateLimit(mockDb, 'test', 'vote', config);
+			const result = await checkRateLimit(mockDb, 'test', 'vote', undefined, config);
 
 			expect(result.allowed).toBe(false);
 			expect(mockDb.delete).toHaveBeenCalled();
@@ -241,7 +241,7 @@ describe('rateLimiter', () => {
 				})
 			});
 
-			const result = await checkRateLimit(mockDb, 'test-fingerprint', 'vote', config);
+			const result = await checkRateLimit(mockDb, 'test-fingerprint', 'vote', undefined, config);
 
 			expect(result.allowed).toBe(false);
 			expect(result.retryAfter).toBeGreaterThanOrEqual(1);
@@ -357,7 +357,7 @@ describe('rateLimiter', () => {
 				values: vi.fn().mockResolvedValue(undefined)
 			});
 
-			const result = await checkRateLimit(mockDb, 'test', 'vote', config);
+			const result = await checkRateLimit(mockDb, 'test', 'vote', undefined, config);
 			expect(result.allowed).toBe(true);
 		});
 
@@ -379,7 +379,7 @@ describe('rateLimiter', () => {
 				})
 			});
 
-			const result = await checkRateLimit(mockDb, 'test', 'vote', config);
+			const result = await checkRateLimit(mockDb, 'test', 'vote', undefined, config);
 			expect(result.allowed).toBe(false);
 		});
 
@@ -405,7 +405,7 @@ describe('rateLimiter', () => {
 				values: vi.fn().mockResolvedValue(undefined)
 			});
 
-			const result = await checkRateLimit(mockDb, 'test', 'vote', config);
+			const result = await checkRateLimit(mockDb, 'test', 'vote', undefined, config);
 			expect(result.allowed).toBe(true);
 		});
 	});
@@ -450,7 +450,7 @@ describe('rateLimiter', () => {
 				values: vi.fn().mockResolvedValue(undefined)
 			});
 
-			const result1 = await checkRateLimit(mockDb, 'test', 'vote', config);
+			const result1 = await checkRateLimit(mockDb, 'test', 'vote', undefined, config);
 			expect(result1.allowed).toBe(true);
 		});
 
@@ -473,7 +473,7 @@ describe('rateLimiter', () => {
 				})
 			});
 
-			const result = await checkRateLimit(mockDb, 'test', 'vote', config);
+			const result = await checkRateLimit(mockDb, 'test', 'vote', undefined, config);
 
 			expect(result.allowed).toBe(false);
 			expect(result.retryAfter).toBeGreaterThan(1700);

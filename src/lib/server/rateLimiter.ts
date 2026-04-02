@@ -54,11 +54,12 @@ export async function checkRateLimit(
 	db: DbClient,
 	fingerprint: string,
 	action: string,
+	env?: RateLimitEnv,
 	config?: RateLimitConfig
 ): Promise<RateLimitResult> {
 	validateInput(fingerprint, action);
 
-	const effectiveConfig = config || getConfig(action);
+	const effectiveConfig = config || getConfig(action, env);
 
 	const now = Date.now();
 	const windowStart = new Date(now - effectiveConfig.windowMs);

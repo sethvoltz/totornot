@@ -95,7 +95,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 		const db = getDb(platform!.env.DB);
 
 		// Rate limiting
-		const rateLimitResult = await checkRateLimit(db, ipHash, 'tip');
+		const rateLimitResult = await checkRateLimit(db, ipHash, 'tip', platform.env);
 
 		if (!rateLimitResult.allowed) {
 			return new Response(
