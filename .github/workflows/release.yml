@@ -21,7 +21,7 @@ jobs:
           app-id: ${{ secrets.GHA_APP_ID }}
           private-key: ${{ secrets.GHA_PRIVATE_KEY }}
 
-      - uses: googleapis/release-please-action@v4
+      - uses: googleapis/release-please-action@v4.4
         with:
           token: ${{ steps.app-token.outputs.token }}
           config-file: release-please-config.json
