@@ -37,8 +37,9 @@ export const rateLimits = sqliteTable('rate_limits', {
 		.$defaultFn(() => crypto.randomUUID()),
 	fingerprint: text('fingerprint').notNull(),
 	action: text('action').notNull(),
-	windowStart: integer('window_start', { mode: 'timestamp' }).notNull(),
-	count: integer('count').notNull().default(1)
+	createdAt: integer('created_at', { mode: 'timestamp' })
+		.notNull()
+		.$defaultFn(() => new Date())
 });
 
 export const dishSubmissions = sqliteTable('dish_submissions', {
