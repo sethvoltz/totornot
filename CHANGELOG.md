@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/sethvoltz/totornot/compare/totornot-v1.2.0...totornot-v1.3.0) (2026-04-02)
+
+
+### Features
+
+* add responsive mobile layout for voting and leaderboard ([#27](https://github.com/sethvoltz/totornot/issues/27)) ([28846da](https://github.com/sethvoltz/totornot/commit/28846da6f34d923d0cec261aa688b67b13eaeabb))
+
 ## [1.2.0](https://github.com/sethvoltz/totornot/compare/totornot-v1.1.1...totornot-v1.2.0) (2026-04-01)
 
 
