@@ -25,7 +25,9 @@
 		}
 	],
 	"vars": {
-		"PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAACzHo2u6bADs4BEJ"
+		"PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAACzHo2u6bADs4BEJ",
+		"VOTE_RATE_LIMIT_PER_HOUR": "100",
+		"TIP_RATE_LIMIT_PER_HOUR": "3"
 	},
 	"env": {
 		"staging": {
@@ -46,7 +48,9 @@
 				}
 			],
 			"vars": {
-				"PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAACzHo2u6bADs4BEJ"
+				"PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAACzHo2u6bADs4BEJ",
+				"VOTE_RATE_LIMIT_PER_HOUR": "30",
+				"TIP_RATE_LIMIT_PER_HOUR": "10"
 			}
 		}
 	}

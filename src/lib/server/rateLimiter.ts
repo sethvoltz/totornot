@@ -1,7 +1,6 @@
 import { and, eq, gt, lt } from 'drizzle-orm';
 import type { DrizzleD1Database } from 'drizzle-orm/d1';
 import { rateLimits } from './db/schema';
-import { dev } from '$app/environment';
 import type * as schema from './db/schema';
 
 export interface RateLimitConfig {
@@ -14,18 +13,27 @@ export interface RateLimitResult {
 	retryAfter: number | null;
 }
 
-const DEFAULT_CONFIGS: Record<string, RateLimitConfig> = {
-	vote: {
-		maxRequests: dev ? 1000 : 100,
-		windowMs: 60 * 60 * 1000
-	},
-	tip: {
-		maxRequests: dev ? 1000 : 3,
-		windowMs: 60 * 60 * 1000
-	}
-};
+export interface RateLimitEnv {
+	VOTE_RATE_LIMIT_PER_HOUR?: string;
+	TIP_RATE_LIMIT_PER_HOUR?: string;
+}
+
+const DEFAULT_MAX_REQUESTS = 1000;
+const WINDOW_MS = 60 * 60 * 1000;
 
 type DbClient = DrizzleD1Database<typeof schema>;
+
+function getConfig(action: string, env?: RateLimitEnv): RateLimitConfig {
+	const maxRequests =
+		action === 'tip'
+			? parseInt(env?.TIP_RATE_LIMIT_PER_HOUR || '', 10) || DEFAULT_MAX_REQUESTS
+			: parseInt(env?.VOTE_RATE_LIMIT_PER_HOUR || '', 10) || DEFAULT_MAX_REQUESTS;
+
+	return {
+		maxRequests,
+		windowMs: WINDOW_MS
+	};
+}
 
 function validateInput(fingerprint: string, action: string): void {
 	if (!fingerprint || fingerprint.trim().length === 0) {
@@ -46,12 +54,14 @@ export async function checkRateLimit(
 	db: DbClient,
 	fingerprint: string,
 	action: string,
-	config: RateLimitConfig = DEFAULT_CONFIGS[action] || DEFAULT_CONFIGS.vote
+	config?: RateLimitConfig
 ): Promise<RateLimitResult> {
 	validateInput(fingerprint, action);
 
+	const effectiveConfig = config || getConfig(action);
+
 	const now = Date.now();
-	const windowStart = new Date(now - config.windowMs);
+	const windowStart = new Date(now - effectiveConfig.windowMs);
 
 	// Count existing requests in the sliding window
 	const existingEntries = await db
@@ -66,12 +76,14 @@ export async function checkRateLimit(
 		);
 
 	// Check if we're at or over the limit
-	if (existingEntries.length >= config.maxRequests) {
+	if (existingEntries.length >= effectiveConfig.maxRequests) {
 		// Find the oldest entry to calculate retry-after
 		const oldestEntry = existingEntries.reduce((oldest, entry) =>
 			entry.createdAt < oldest.createdAt ? entry : oldest
 		);
-		const retryAfter = Math.ceil((oldestEntry.createdAt.getTime() + config.windowMs - now) / 1000);
+		const retryAfter = Math.ceil(
+			(oldestEntry.createdAt.getTime() + effectiveConfig.windowMs - now) / 1000
+		);
 		return { allowed: false, retryAfter: Math.max(1, retryAfter) };
 	}
 
@@ -97,7 +109,7 @@ export async function checkRateLimit(
 		);
 
 	// If we exceeded the limit, remove our entry and deny
-	if (countAfterInsert.length > config.maxRequests) {
+	if (countAfterInsert.length > effectiveConfig.maxRequests) {
 		await db.delete(rateLimits).where(eq(rateLimits.id, newId));
 
 		// Re-fetch to find oldest for retry-after
@@ -117,25 +129,22 @@ export async function checkRateLimit(
 				entry.createdAt < oldest.createdAt ? entry : oldest
 			);
 			const retryAfter = Math.ceil(
-				(oldestEntry.createdAt.getTime() + config.windowMs - Date.now()) / 1000
+				(oldestEntry.createdAt.getTime() + effectiveConfig.windowMs - Date.now()) / 1000
 			);
 			return { allowed: false, retryAfter: Math.max(1, retryAfter) };
 		}
 
-		return { allowed: false, retryAfter: Math.ceil(config.windowMs / 1000) };
+		return { allowed: false, retryAfter: Math.ceil(effectiveConfig.windowMs / 1000) };
 	}
 
 	return { allowed: true, retryAfter: null };
 }
 
-export async function cleanupRateLimits(
-	db: DbClient,
-	config: RateLimitConfig = DEFAULT_CONFIGS.vote
-): Promise<void> {
-	const cutoff = new Date(Date.now() - config.windowMs);
+export async function cleanupRateLimits(db: DbClient, config?: RateLimitConfig): Promise<void> {
+	const effectiveConfig = config || { maxRequests: DEFAULT_MAX_REQUESTS, windowMs: WINDOW_MS };
+	const cutoff = new Date(Date.now() - effectiveConfig.windowMs);
 
-	// Delete entries older than the window
 	await db.delete(rateLimits).where(lt(rateLimits.createdAt, cutoff));
 }
 
-export { DEFAULT_CONFIGS };
+export { getConfig, DEFAULT_MAX_REQUESTS, WINDOW_MS };

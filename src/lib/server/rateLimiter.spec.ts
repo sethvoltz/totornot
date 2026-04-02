@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { checkRateLimit, cleanupRateLimits, DEFAULT_CONFIGS } from './rateLimiter';
+import {
+	checkRateLimit,
+	cleanupRateLimits,
+	getConfig,
+	DEFAULT_MAX_REQUESTS,
+	WINDOW_MS
+} from './rateLimiter';
 import type { RateLimitConfig } from './rateLimiter';
 
 describe('rateLimiter', () => {
@@ -196,9 +202,9 @@ describe('rateLimiter', () => {
 
 			await checkRateLimit(mockDb, 'test', 'vote');
 
-			expect(DEFAULT_CONFIGS.vote).toBeDefined();
-			expect(DEFAULT_CONFIGS.vote.maxRequests).toBe(1000);
-			expect(DEFAULT_CONFIGS.vote.windowMs).toBe(60 * 60 * 1000);
+			const voteConfig = getConfig('vote');
+			expect(voteConfig.maxRequests).toBe(DEFAULT_MAX_REQUESTS);
+			expect(voteConfig.windowMs).toBe(WINDOW_MS);
 		});
 
 		it('should use correct default config for tip action', async () => {
@@ -216,9 +222,9 @@ describe('rateLimiter', () => {
 
 			await checkRateLimit(mockDb, 'test', 'tip');
 
-			expect(DEFAULT_CONFIGS.tip).toBeDefined();
-			expect(DEFAULT_CONFIGS.tip.maxRequests).toBe(1000);
-			expect(DEFAULT_CONFIGS.tip.windowMs).toBe(60 * 60 * 1000);
+			const tipConfig = getConfig('tip');
+			expect(tipConfig.maxRequests).toBe(DEFAULT_MAX_REQUESTS);
+			expect(tipConfig.windowMs).toBe(WINDOW_MS);
 		});
 
 		it('should ensure retryAfter is at least 1 second', async () => {
@@ -472,6 +478,43 @@ describe('rateLimiter', () => {
 			expect(result.allowed).toBe(false);
 			expect(result.retryAfter).toBeGreaterThan(1700);
 			expect(result.retryAfter).toBeLessThan(1900);
+		});
+	});
+
+	describe('getConfig', () => {
+		it('should return default when no env provided', () => {
+			const config = getConfig('vote');
+			expect(config.maxRequests).toBe(DEFAULT_MAX_REQUESTS);
+			expect(config.windowMs).toBe(WINDOW_MS);
+		});
+
+		it('should use VOTE_RATE_LIMIT_PER_HOUR from env', () => {
+			const env = { VOTE_RATE_LIMIT_PER_HOUR: '50' };
+			const config = getConfig('vote', env);
+			expect(config.maxRequests).toBe(50);
+		});
+
+		it('should use TIP_RATE_LIMIT_PER_HOUR from env', () => {
+			const env = { TIP_RATE_LIMIT_PER_HOUR: '10' };
+			const config = getConfig('tip', env);
+			expect(config.maxRequests).toBe(10);
+		});
+
+		it('should fallback to default for invalid env value', () => {
+			const env = { VOTE_RATE_LIMIT_PER_HOUR: 'invalid' };
+			const config = getConfig('vote', env);
+			expect(config.maxRequests).toBe(DEFAULT_MAX_REQUESTS);
+		});
+
+		it('should fallback to default for empty env value', () => {
+			const env = { VOTE_RATE_LIMIT_PER_HOUR: '' };
+			const config = getConfig('vote', env);
+			expect(config.maxRequests).toBe(DEFAULT_MAX_REQUESTS);
+		});
+
+		it('should fallback to default for unknown action', () => {
+			const config = getConfig('unknown-action');
+			expect(config.maxRequests).toBe(DEFAULT_MAX_REQUESTS);
 		});
 	});
 });
