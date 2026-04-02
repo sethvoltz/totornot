@@ -19,11 +19,13 @@ export const votes = sqliteTable('votes', {
 	id: text('id')
 		.primaryKey()
 		.$defaultFn(() => crypto.randomUUID()),
-	dishId: text('dish_id')
+	winnerId: text('winner_id')
 		.notNull()
 		.references(() => dishes.id),
-	value: integer('value').notNull(),
-	fingerprint: text('fingerprint').notNull(),
+	loserId: text('loser_id')
+		.notNull()
+		.references(() => dishes.id),
+	ip: text('ip'),
 	createdAt: integer('created_at', { mode: 'timestamp' })
 		.notNull()
 		.$defaultFn(() => new Date())
@@ -46,6 +48,7 @@ export const dishSubmissions = sqliteTable('dish_submissions', {
 	dishName: text('dish_name').notNull(),
 	description: text('description').notNull(),
 	submitterName: text('submitter_name'),
+	submitterIp: text('submitter_ip'),
 	createdAt: integer('created_at', { mode: 'timestamp' })
 		.notNull()
 		.$defaultFn(() => new Date())
