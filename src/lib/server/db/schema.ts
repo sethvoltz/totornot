@@ -25,7 +25,7 @@ export const votes = sqliteTable('votes', {
 	loserId: text('loser_id')
 		.notNull()
 		.references(() => dishes.id),
-	ip: text('ip'),
+	ipHash: text('ip_hash'),
 	createdAt: integer('created_at', { mode: 'timestamp' })
 		.notNull()
 		.$defaultFn(() => new Date())
@@ -48,7 +48,7 @@ export const dishSubmissions = sqliteTable('dish_submissions', {
 	dishName: text('dish_name').notNull(),
 	description: text('description').notNull(),
 	submitterName: text('submitter_name'),
-	submitterIp: text('submitter_ip'),
+	submitterIpHash: text('submitter_ip_hash'),
 	createdAt: integer('created_at', { mode: 'timestamp' })
 		.notNull()
 		.$defaultFn(() => new Date())

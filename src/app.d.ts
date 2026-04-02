@@ -7,6 +7,7 @@ declare global {
 				DB: D1Database;
 				PUBLIC_TURNSTILE_SITE_KEY: string;
 				TURNSTILE_SECRET_KEY: string;
+				IP_HASH_SECRET: string;
 			};
 			ctx: ExecutionContext;
 			caches: CacheStorage;

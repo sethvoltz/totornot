@@ -186,8 +186,11 @@ Copy the **Site Key** and **Secret Key**.
 **5. Set production secrets**
 
 ```sh
-# Secret key (server-side only — stored encrypted in Cloudflare)
+# Turnstile secret key (server-side only — stored encrypted in Cloudflare)
 wrangler secret put TURNSTILE_SECRET_KEY
+
+# IP hashing secret (generate with: openssl rand -base64 32)
+wrangler secret put IP_HASH_SECRET
 
 # Site key is public — add it as a plain var in wrangler.jsonc:
 ```

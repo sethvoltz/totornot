@@ -1,17 +1,36 @@
 import { getDb } from '$lib/server/db';
 import { dishSubmissions, rateLimits } from '$lib/server/db/schema';
 import { and, eq, gt } from 'drizzle-orm';
+import { hashIp } from '$lib/server/crypto';
+import { dev } from '$app/environment';
 import type { RequestHandler } from './$types';
 
 const MAX_DISH_NAME_LENGTH = 150;
 const MAX_DESCRIPTION_LENGTH = 1000;
 const MAX_SUBMITTER_NAME_LENGTH = 100;
-const RATE_LIMIT_MAX = 3;
+const RATE_LIMIT_MAX = dev ? 1000 : 3;
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
 
 interface TurnstileVerifyResponse {
 	success: boolean;
 	'error-codes'?: string[];
+}
+
+function validateCsrf(request: Request): boolean {
+	const origin = request.headers.get('Origin');
+	const referer = request.headers.get('Referer');
+
+	const allowedOrigins = ['https://totornot.com', 'https://staging.totornot.com'];
+
+	if (origin && allowedOrigins.some((o) => origin.startsWith(o))) {
+		return true;
+	}
+
+	if (referer && allowedOrigins.some((o) => referer.startsWith(o))) {
+		return true;
+	}
+
+	return false;
 }
 
 async function verifyTurnstile(token: string, secret: string, ip: string): Promise<boolean> {
@@ -31,7 +50,25 @@ async function verifyTurnstile(token: string, secret: string, ip: string): Promi
 
 export const POST: RequestHandler = async ({ request, platform }) => {
 	try {
+		if (!validateCsrf(request)) {
+			return new Response(JSON.stringify({ error: 'Forbidden' }), {
+				status: 403,
+				headers: { 'Content-Type': 'application/json' }
+			});
+		}
+
 		const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+		const ipHashSecret = platform?.env.IP_HASH_SECRET;
+
+		if (!ipHashSecret) {
+			console.error('IP_HASH_SECRET not configured');
+			return new Response(JSON.stringify({ error: 'Server configuration error' }), {
+				status: 500,
+				headers: { 'Content-Type': 'application/json' }
+			});
+		}
+
+		const ipHash = await hashIp(ip, ipHashSecret);
 
 		const body = (await request.json()) as {
 			dishName?: string;
@@ -111,7 +148,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 			.from(rateLimits)
 			.where(
 				and(
-					eq(rateLimits.fingerprint, ip),
+					eq(rateLimits.fingerprint, ipHash),
 					eq(rateLimits.action, 'tip'),
 					gt(rateLimits.windowStart, windowStart)
 				)
@@ -140,7 +177,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 				.where(eq(rateLimits.id, currentWindow.id));
 		} else {
 			await db.insert(rateLimits).values({
-				fingerprint: ip,
+				fingerprint: ipHash,
 				action: 'tip',
 				windowStart: new Date(),
 				count: 1
@@ -151,7 +188,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 			dishName: dishName.trim(),
 			description: description.trim(),
 			submitterName: submitterName?.trim() || null,
-			submitterIp: ip
+			submitterIpHash: ipHash
 		});
 
 		return new Response(JSON.stringify({ success: true }), {

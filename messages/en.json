@@ -24,5 +24,6 @@
 	"tip_success": "Thanks for the tip! We'll review your submission.",
 	"tip_error_generic": "Something went wrong. Please try again.",
 	"tip_error_rate_limited": "Too many submissions. Please try again later.",
-	"suggest_a_dish": "Suggest a Dish"
+	"suggest_a_dish": "Suggest a Dish",
+	"vote_error_rate_limited": "Whoa there, hot potato! You've been voting a lot. Let the steam cool off and try again in a bit."
 }

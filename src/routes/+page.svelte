@@ -13,6 +13,7 @@
 	let winnerId = $state('');
 	let loserId = $state('');
 	let fading = $state(false);
+	let rateLimitError = $state<string | null>(null);
 
 	// Measured at vote time so the slide is exact regardless of screen size
 	let leftSlideX = $state(0);
@@ -42,8 +43,15 @@
 		initialLoading = false;
 	});
 
+	function dismissError() {
+		rateLimitError = null;
+	}
+
 	async function handleVote(selectedWinnerId: string, selectedLoserId: string) {
 		if (busy) return;
+
+		// Clear any previous error
+		rateLimitError = null;
 
 		// Measure once, before any state changes move things around
 		if (arenaEl && leftCardEl && rightCardEl) {
@@ -63,7 +71,7 @@
 		loserId = selectedLoserId;
 
 		// Kick off API calls immediately
-		const apiResult = Promise.all([
+		const [voteResponse, dishesResponse] = await Promise.all([
 			fetch('/api/vote', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -71,6 +79,19 @@
 			}),
 			fetch('/api/dishes/random')
 		]);
+
+		// Handle rate limiting
+		if (voteResponse.status === 429) {
+			busy = false;
+			winnerId = '';
+			loserId = '';
+			leftSlideX = 0;
+			rightSlideX = 0;
+			leftSlideY = 0;
+			rightSlideY = 0;
+			rateLimitError = m.vote_error_rate_limited();
+			return;
+		}
 
 		// Wait for slide animation (CSS transition: 500ms)
 		await delay(500);
@@ -82,14 +103,9 @@
 		await delay(300);
 
 		// Swap dishes while invisible
-		try {
-			const [, dishesResponse] = await apiResult;
-			if (dishesResponse.ok) {
-				const result = (await dishesResponse.json()) as { dishes: Dish[] };
-				dishes = result.dishes || [];
-			}
-		} catch (err) {
-			console.error('Vote error:', err);
+		if (dishesResponse.ok) {
+			const result = (await dishesResponse.json()) as { dishes: Dish[] };
+			dishes = result.dishes || [];
 		}
 
 		// Clear animation state (still invisible)
@@ -120,6 +136,39 @@
 			{m.voting_subheading()}
 		</p>
 	</div>
+
+	{#if rateLimitError}
+		<div
+			class="diner-card mx-auto mb-6 max-w-md p-4 text-center"
+			style="background-color: var(--bg-secondary); border-left: 4px solid #e63946;"
+		>
+			<div class="flex items-center justify-between gap-3">
+				<p class="font-medium" style="color: #e63946;">
+					{rateLimitError}
+				</p>
+				<button
+					type="button"
+					onclick={dismissError}
+					class="shrink-0 rounded-full p-1 transition-colors hover:opacity-70"
+					style="color: #e63946;"
+					aria-label="Dismiss"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						class="h-5 w-5"
+						viewBox="0 0 20 20"
+						fill="currentColor"
+					>
+						<path
+							fill-rule="evenodd"
+							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							clip-rule="evenodd"
+						/>
+					</svg>
+				</button>
+			</div>
+		</div>
+	{/if}
 
 	{#if browser}
 		{#if initialLoading}
