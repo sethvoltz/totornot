@@ -4,6 +4,19 @@
 - **Package Manager**: pnpm
 - **Add-ons**: prettier, eslint, vitest, playwright, tailwindcss, sveltekit-adapter, drizzle, paraglide, storybook, mcp
 
+## Deployment
+
+Never EVER deploy the app yourself. CI is the eclusive way deployments should be made. If you want to make changes to the deployment process, talk to the team first. Staging will be deployed when approved PRs are merged. Production will be deployed manually by the team when we are ready to release.
+
+## Rate Limiting
+
+- Rate limits are configured via environment variables: `VOTE_RATE_LIMIT_PER_HOUR` and `TIP_RATE_LIMIT_PER_HOUR`
+- The `checkRateLimit` function requires `platform.env` to be passed as the 4th argument to read these values
+- Without passing `env`, it falls back to `DEFAULT_MAX_REQUESTS = 1000`
+- Current limits:
+  - Production: 100 votes/hour, 3 tips/hour
+  - Staging: 15 votes/hour, 10 tips/hour
+
 ---
 
 You are able to use the Svelte MCP server, where you have access to comprehensive Svelte 5 and SvelteKit documentation. Here's how to use the available tools effectively:

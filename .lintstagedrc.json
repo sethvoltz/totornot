@@ -1,5 +1,4 @@
 {
 	"*.{js,ts,svelte}": ["prettier --write", "eslint --fix"],
-	"src/lib/lang/*.json": ["prettier --write", "eslint --fix"],
-	"AGENTS.md": ["./bin/cursor_rules.sh", "git add .cursor/rules/common.mdc"]
+	"messages/*.json": ["prettier --write"]
 }
