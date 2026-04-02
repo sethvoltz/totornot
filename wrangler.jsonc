@@ -47,7 +47,7 @@
 				}
 			],
 			"vars": {
-				"VOTE_RATE_LIMIT_PER_HOUR": "30",
+				"VOTE_RATE_LIMIT_PER_HOUR": "15",
 				"TIP_RATE_LIMIT_PER_HOUR": "10"
 			}
 		}
