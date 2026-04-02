@@ -32,14 +32,10 @@ export const votes = sqliteTable('votes', {
 });
 
 export const rateLimits = sqliteTable('rate_limits', {
-	id: text('id')
-		.primaryKey()
-		.$defaultFn(() => crypto.randomUUID()),
-	fingerprint: text('fingerprint').notNull(),
+	fingerprint: text('fingerprint').primaryKey(),
 	action: text('action').notNull(),
-	createdAt: integer('created_at', { mode: 'timestamp' })
-		.notNull()
-		.$defaultFn(() => new Date())
+	windowStart: integer('window_start', { mode: 'timestamp' }).notNull(),
+	count: integer('count').notNull().default(1)
 });
 
 export const dishSubmissions = sqliteTable('dish_submissions', {

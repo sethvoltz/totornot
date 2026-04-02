@@ -1,4 +1,4 @@
-import { and, eq, gt, lt } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import type { DrizzleD1Database } from 'drizzle-orm/d1';
 import { rateLimits } from './db/schema';
 import type * as schema from './db/schema';
@@ -60,83 +60,46 @@ export async function checkRateLimit(
 	validateInput(fingerprint, action);
 
 	const effectiveConfig = config || getConfig(action, env);
-
 	const now = Date.now();
 	const windowStart = new Date(now - effectiveConfig.windowMs);
 
-	// Count existing requests in the sliding window
-	const existingEntries = await db
+	const existing = await db
 		.select()
 		.from(rateLimits)
-		.where(
-			and(
-				eq(rateLimits.fingerprint, fingerprint),
-				eq(rateLimits.action, action),
-				gt(rateLimits.createdAt, windowStart)
-			)
-		);
+		.where(eq(rateLimits.fingerprint, fingerprint))
+		.limit(1);
 
-	// Check if we're at or over the limit
-	if (existingEntries.length >= effectiveConfig.maxRequests) {
-		// Find the oldest entry to calculate retry-after
-		const oldestEntry = existingEntries.reduce((oldest, entry) =>
-			entry.createdAt < oldest.createdAt ? entry : oldest
-		);
+	if (existing.length === 0) {
+		await db.insert(rateLimits).values({
+			fingerprint,
+			action,
+			windowStart: new Date(),
+			count: 1
+		});
+		return { allowed: true, retryAfter: null };
+	}
+
+	const record = existing[0];
+
+	if (record.windowStart < windowStart) {
+		await db
+			.update(rateLimits)
+			.set({ windowStart: new Date(), count: 1, action })
+			.where(eq(rateLimits.fingerprint, fingerprint));
+		return { allowed: true, retryAfter: null };
+	}
+
+	if (record.count >= effectiveConfig.maxRequests) {
 		const retryAfter = Math.ceil(
-			(oldestEntry.createdAt.getTime() + effectiveConfig.windowMs - now) / 1000
+			(record.windowStart.getTime() + effectiveConfig.windowMs - now) / 1000
 		);
 		return { allowed: false, retryAfter: Math.max(1, retryAfter) };
 	}
 
-	// Insert the new request
-	const newId = crypto.randomUUID();
-	await db.insert(rateLimits).values({
-		id: newId,
-		fingerprint,
-		action,
-		createdAt: new Date()
-	});
-
-	// Re-check count after insert (handles race conditions)
-	const countAfterInsert = await db
-		.select({ count: rateLimits.id })
-		.from(rateLimits)
-		.where(
-			and(
-				eq(rateLimits.fingerprint, fingerprint),
-				eq(rateLimits.action, action),
-				gt(rateLimits.createdAt, windowStart)
-			)
-		);
-
-	// If we exceeded the limit, remove our entry and deny
-	if (countAfterInsert.length > effectiveConfig.maxRequests) {
-		await db.delete(rateLimits).where(eq(rateLimits.id, newId));
-
-		// Re-fetch to find oldest for retry-after
-		const entries = await db
-			.select()
-			.from(rateLimits)
-			.where(
-				and(
-					eq(rateLimits.fingerprint, fingerprint),
-					eq(rateLimits.action, action),
-					gt(rateLimits.createdAt, windowStart)
-				)
-			);
-
-		if (entries.length > 0) {
-			const oldestEntry = entries.reduce((oldest, entry) =>
-				entry.createdAt < oldest.createdAt ? entry : oldest
-			);
-			const retryAfter = Math.ceil(
-				(oldestEntry.createdAt.getTime() + effectiveConfig.windowMs - Date.now()) / 1000
-			);
-			return { allowed: false, retryAfter: Math.max(1, retryAfter) };
-		}
-
-		return { allowed: false, retryAfter: Math.ceil(effectiveConfig.windowMs / 1000) };
-	}
+	await db
+		.update(rateLimits)
+		.set({ count: record.count + 1 })
+		.where(eq(rateLimits.fingerprint, fingerprint));
 
 	return { allowed: true, retryAfter: null };
 }
@@ -145,7 +108,8 @@ export async function cleanupRateLimits(db: DbClient, config?: RateLimitConfig):
 	const effectiveConfig = config || { maxRequests: DEFAULT_MAX_REQUESTS, windowMs: WINDOW_MS };
 	const cutoff = new Date(Date.now() - effectiveConfig.windowMs);
 
-	await db.delete(rateLimits).where(lt(rateLimits.createdAt, cutoff));
+	const { lt } = await import('drizzle-orm');
+	await db.delete(rateLimits).where(lt(rateLimits.windowStart, cutoff));
 }
 
 export { getConfig, DEFAULT_MAX_REQUESTS, WINDOW_MS };

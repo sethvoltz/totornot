@@ -16,18 +16,18 @@ describe('rateLimiter', () => {
 		mockDb = {
 			select: vi.fn(),
 			insert: vi.fn(),
+			update: vi.fn(),
 			delete: vi.fn()
 		};
 	});
 
 	describe('checkRateLimit', () => {
-		it('should allow requests under the limit', async () => {
+		it('should allow first request and create new row', async () => {
 			mockDb.select.mockReturnValue({
 				from: vi.fn().mockReturnValue({
-					where: vi
-						.fn()
-						.mockResolvedValueOnce([]) // First check
-						.mockResolvedValueOnce([{ id: 'new' }]) // Re-check
+					where: vi.fn().mockReturnValue({
+						limit: vi.fn().mockResolvedValue([])
+					})
 				})
 			});
 			mockDb.insert.mockReturnValue({
@@ -38,21 +38,25 @@ describe('rateLimiter', () => {
 
 			expect(result.allowed).toBe(true);
 			expect(result.retryAfter).toBeNull();
+			expect(mockDb.insert).toHaveBeenCalled();
 		});
 
 		it('should deny requests at the limit', async () => {
 			const config: RateLimitConfig = { maxRequests: 3, windowMs: 60000 };
 			const now = Date.now();
 
-			const entries = [
-				{ id: '1', fingerprint: 'test', action: 'vote', createdAt: new Date(now - 1000) },
-				{ id: '2', fingerprint: 'test', action: 'vote', createdAt: new Date(now - 2000) },
-				{ id: '3', fingerprint: 'test', action: 'vote', createdAt: new Date(now - 3000) }
-			];
-
 			mockDb.select.mockReturnValue({
 				from: vi.fn().mockReturnValue({
-					where: vi.fn().mockResolvedValueOnce(entries)
+					where: vi.fn().mockReturnValue({
+						limit: vi.fn().mockResolvedValue([
+							{
+								fingerprint: 'test-fingerprint',
+								action: 'vote',
+								windowStart: new Date(now - 30000),
+								count: 3
+							}
+						])
+					})
 				})
 			});
 
@@ -62,20 +66,24 @@ describe('rateLimiter', () => {
 			expect(result.retryAfter).toBeGreaterThan(0);
 		});
 
-		it('should calculate correct retryAfter based on oldest entry', async () => {
+		it('should calculate correct retryAfter based on window expiry', async () => {
 			const windowMs = 60000;
 			const config: RateLimitConfig = { maxRequests: 2, windowMs };
 			const now = Date.now();
 
-			// Oldest entry was 30 seconds ago
-			const entries = [
-				{ id: '1', fingerprint: 'test', action: 'vote', createdAt: new Date(now - 30000) },
-				{ id: '2', fingerprint: 'test', action: 'vote', createdAt: new Date(now - 10000) }
-			];
-
+			// Window started 30 seconds ago, so expires in 30 seconds
 			mockDb.select.mockReturnValue({
 				from: vi.fn().mockReturnValue({
-					where: vi.fn().mockResolvedValueOnce(entries)
+					where: vi.fn().mockReturnValue({
+						limit: vi.fn().mockResolvedValue([
+							{
+								fingerprint: 'test-fingerprint',
+								action: 'vote',
+								windowStart: new Date(now - 30000),
+								count: 2
+							}
+						])
+					})
 				})
 			});
 
@@ -86,209 +94,66 @@ describe('rateLimiter', () => {
 			expect(result.retryAfter).toBeLessThanOrEqual(31);
 		});
 
-		it('should use sliding window - allow after oldest entry expires', async () => {
+		it('should reset window when expired', async () => {
 			const windowMs = 60000;
 			const config: RateLimitConfig = { maxRequests: 2, windowMs };
 			const now = Date.now();
 
-			// Only one entry within window
-			const entries = [
-				{ id: '2', fingerprint: 'test', action: 'vote', createdAt: new Date(now - 10000) }
-			];
-
+			// Window started 70 seconds ago (expired)
 			mockDb.select.mockReturnValue({
 				from: vi.fn().mockReturnValue({
-					where: vi
-						.fn()
-						.mockResolvedValueOnce(entries) // First check
-						.mockResolvedValueOnce([{ id: 'new' }]) // Re-check
+					where: vi.fn().mockReturnValue({
+						limit: vi.fn().mockResolvedValue([
+							{
+								fingerprint: 'test-fingerprint',
+								action: 'vote',
+								windowStart: new Date(now - 70000),
+								count: 5
+							}
+						])
+					})
 				})
 			});
-			mockDb.insert.mockReturnValue({
-				values: vi.fn().mockResolvedValue(undefined)
+			mockDb.update.mockReturnValue({
+				set: vi.fn().mockReturnValue({
+					where: vi.fn().mockResolvedValue(undefined)
+				})
 			});
 
 			const result = await checkRateLimit(mockDb, 'test-fingerprint', 'vote', undefined, config);
 
 			expect(result.allowed).toBe(true);
+			expect(mockDb.update).toHaveBeenCalled();
 		});
 
-		it('should insert a new entry when allowed', async () => {
-			mockDb.select.mockReturnValue({
-				from: vi.fn().mockReturnValue({
-					where: vi
-						.fn()
-						.mockResolvedValueOnce([]) // First check
-						.mockResolvedValueOnce([{ id: 'new' }]) // Re-check
-				})
-			});
-			mockDb.insert.mockReturnValue({
-				values: vi.fn().mockResolvedValue(undefined)
-			});
-
-			await checkRateLimit(mockDb, 'test-fingerprint', 'vote');
-
-			expect(mockDb.insert).toHaveBeenCalled();
-		});
-
-		it('should not insert when rate limited', async () => {
-			const config: RateLimitConfig = { maxRequests: 1, windowMs: 60000 };
-			const entries = [{ id: '1', fingerprint: 'test', action: 'vote', createdAt: new Date() }];
-
-			mockDb.select.mockReturnValue({
-				from: vi.fn().mockReturnValue({
-					where: vi.fn().mockResolvedValueOnce(entries)
-				})
-			});
-
-			await checkRateLimit(mockDb, 'test-fingerprint', 'vote', undefined, config);
-
-			expect(mockDb.insert).not.toHaveBeenCalled();
-		});
-
-		it('should handle race condition - remove own entry if limit exceeded after insert', async () => {
-			const config: RateLimitConfig = { maxRequests: 2, windowMs: 60000 };
+		it('should increment count when under limit', async () => {
+			const config: RateLimitConfig = { maxRequests: 5, windowMs: 60000 };
 			const now = Date.now();
 
-			const entriesFirstCheck = [
-				{ id: '1', fingerprint: 'test', action: 'vote', createdAt: new Date(now - 5000) }
-			];
-
-			const entriesAfterInsert = [
-				{ id: '1', fingerprint: 'test', action: 'vote', createdAt: new Date(now - 5000) },
-				{ id: '2', fingerprint: 'test', action: 'vote', createdAt: new Date(now - 1000) },
-				{ id: 'new', fingerprint: 'test', action: 'vote', createdAt: new Date() }
-			];
-
-			const entriesAfterDelete = [
-				{ id: '1', fingerprint: 'test', action: 'vote', createdAt: new Date(now - 5000) },
-				{ id: '2', fingerprint: 'test', action: 'vote', createdAt: new Date(now - 1000) }
-			];
-
 			mockDb.select.mockReturnValue({
 				from: vi.fn().mockReturnValue({
-					where: vi
-						.fn()
-						.mockResolvedValueOnce(entriesFirstCheck) // First check
-						.mockResolvedValueOnce(entriesAfterInsert) // Re-check after insert
-						.mockResolvedValueOnce(entriesAfterDelete) // After delete re-fetch
+					where: vi.fn().mockReturnValue({
+						limit: vi.fn().mockResolvedValue([
+							{
+								fingerprint: 'test-fingerprint',
+								action: 'vote',
+								windowStart: new Date(now - 10000),
+								count: 2
+							}
+						])
+					})
 				})
 			});
-			mockDb.insert.mockReturnValue({
-				values: vi.fn().mockResolvedValue(undefined)
-			});
-			mockDb.delete.mockReturnValue({
-				where: vi.fn().mockResolvedValue(undefined)
-			});
-
-			const result = await checkRateLimit(mockDb, 'test', 'vote', undefined, config);
-
-			expect(result.allowed).toBe(false);
-			expect(mockDb.delete).toHaveBeenCalled();
-		});
-
-		it('should use correct default config for vote action', async () => {
-			mockDb.select.mockReturnValue({
-				from: vi.fn().mockReturnValue({
-					where: vi
-						.fn()
-						.mockResolvedValueOnce([])
-						.mockResolvedValueOnce([{ id: 'new' }])
-				})
-			});
-			mockDb.insert.mockReturnValue({
-				values: vi.fn().mockResolvedValue(undefined)
-			});
-
-			await checkRateLimit(mockDb, 'test', 'vote');
-
-			const voteConfig = getConfig('vote');
-			expect(voteConfig.maxRequests).toBe(DEFAULT_MAX_REQUESTS);
-			expect(voteConfig.windowMs).toBe(WINDOW_MS);
-		});
-
-		it('should use correct default config for tip action', async () => {
-			mockDb.select.mockReturnValue({
-				from: vi.fn().mockReturnValue({
-					where: vi
-						.fn()
-						.mockResolvedValueOnce([])
-						.mockResolvedValueOnce([{ id: 'new' }])
-				})
-			});
-			mockDb.insert.mockReturnValue({
-				values: vi.fn().mockResolvedValue(undefined)
-			});
-
-			await checkRateLimit(mockDb, 'test', 'tip');
-
-			const tipConfig = getConfig('tip');
-			expect(tipConfig.maxRequests).toBe(DEFAULT_MAX_REQUESTS);
-			expect(tipConfig.windowMs).toBe(WINDOW_MS);
-		});
-
-		it('should ensure retryAfter is at least 1 second', async () => {
-			const config: RateLimitConfig = { maxRequests: 1, windowMs: 60000 };
-			const now = Date.now();
-
-			const entries = [
-				{ id: '1', fingerprint: 'test', action: 'vote', createdAt: new Date(now - 59900) }
-			];
-
-			mockDb.select.mockReturnValue({
-				from: vi.fn().mockReturnValue({
-					where: vi.fn().mockResolvedValueOnce(entries)
+			mockDb.update.mockReturnValue({
+				set: vi.fn().mockReturnValue({
+					where: vi.fn().mockResolvedValue(undefined)
 				})
 			});
 
 			const result = await checkRateLimit(mockDb, 'test-fingerprint', 'vote', undefined, config);
 
-			expect(result.allowed).toBe(false);
-			expect(result.retryAfter).toBeGreaterThanOrEqual(1);
-		});
-
-		it('should handle different fingerprints independently', async () => {
-			mockDb.select.mockReturnValue({
-				from: vi.fn().mockReturnValue({
-					where: vi
-						.fn()
-						.mockResolvedValueOnce([])
-						.mockResolvedValueOnce([{ id: 'new' }])
-						.mockResolvedValueOnce([])
-						.mockResolvedValueOnce([{ id: 'new' }])
-				})
-			});
-			mockDb.insert.mockReturnValue({
-				values: vi.fn().mockResolvedValue(undefined)
-			});
-
-			const result1 = await checkRateLimit(mockDb, 'fingerprint-1', 'vote');
-			const result2 = await checkRateLimit(mockDb, 'fingerprint-2', 'vote');
-
-			expect(result1.allowed).toBe(true);
-			expect(result2.allowed).toBe(true);
-		});
-
-		it('should handle different actions independently', async () => {
-			mockDb.select.mockReturnValue({
-				from: vi.fn().mockReturnValue({
-					where: vi
-						.fn()
-						.mockResolvedValueOnce([])
-						.mockResolvedValueOnce([{ id: 'new' }])
-						.mockResolvedValueOnce([])
-						.mockResolvedValueOnce([{ id: 'new' }])
-				})
-			});
-			mockDb.insert.mockReturnValue({
-				values: vi.fn().mockResolvedValue(undefined)
-			});
-
-			const result1 = await checkRateLimit(mockDb, 'test', 'vote');
-			const result2 = await checkRateLimit(mockDb, 'test', 'tip');
-
-			expect(result1.allowed).toBe(true);
-			expect(result2.allowed).toBe(true);
+			expect(result.allowed).toBe(true);
+			expect(mockDb.update).toHaveBeenCalled();
 		});
 
 		it('should throw on empty fingerprint', async () => {
@@ -317,101 +182,57 @@ describe('rateLimiter', () => {
 			await expect(checkRateLimit(mockDb, 'test', longAction)).rejects.toThrow('too long');
 		});
 
-		it('should fallback to vote config for unknown action', async () => {
+		it('should handle different fingerprints independently', async () => {
 			mockDb.select.mockReturnValue({
 				from: vi.fn().mockReturnValue({
-					where: vi
-						.fn()
-						.mockResolvedValueOnce([])
-						.mockResolvedValueOnce([{ id: 'new' }])
+					where: vi.fn().mockReturnValue({
+						limit: vi.fn().mockResolvedValueOnce([]).mockResolvedValueOnce([])
+					})
 				})
 			});
 			mockDb.insert.mockReturnValue({
 				values: vi.fn().mockResolvedValue(undefined)
 			});
 
-			const result = await checkRateLimit(mockDb, 'test', 'unknown-action');
-			expect(result.allowed).toBe(true);
+			const result1 = await checkRateLimit(mockDb, 'fingerprint-1', 'vote');
+			const result2 = await checkRateLimit(mockDb, 'fingerprint-2', 'vote');
+
+			expect(result1.allowed).toBe(true);
+			expect(result2.allowed).toBe(true);
 		});
 
-		it('should count entries correctly', async () => {
-			const config: RateLimitConfig = { maxRequests: 5, windowMs: 60000 };
-			const now = Date.now();
-
-			const entries = [
-				{ id: '1', fingerprint: 'test', action: 'vote', createdAt: new Date(now - 4000) },
-				{ id: '2', fingerprint: 'test', action: 'vote', createdAt: new Date(now - 3000) },
-				{ id: '3', fingerprint: 'test', action: 'vote', createdAt: new Date(now - 2000) },
-				{ id: '4', fingerprint: 'test', action: 'vote', createdAt: new Date(now - 1000) }
-			];
-
-			mockDb.select.mockReturnValue({
-				from: vi.fn().mockReturnValue({
-					where: vi
-						.fn()
-						.mockResolvedValueOnce(entries) // First check - 4 entries
-						.mockResolvedValueOnce([...entries, { id: 'new' }]) // Re-check - 5 entries
-				})
-			});
-			mockDb.insert.mockReturnValue({
-				values: vi.fn().mockResolvedValue(undefined)
-			});
-
-			const result = await checkRateLimit(mockDb, 'test', 'vote', undefined, config);
-			expect(result.allowed).toBe(true);
+		it('should use VOTE_RATE_LIMIT_PER_HOUR from env', async () => {
+			const env = { VOTE_RATE_LIMIT_PER_HOUR: '50' };
+			const config = getConfig('vote', env);
+			expect(config.maxRequests).toBe(50);
 		});
 
-		it('should reject when count equals maxRequests', async () => {
-			const config: RateLimitConfig = { maxRequests: 5, windowMs: 60000 };
-			const now = Date.now();
-
-			const entries = [
-				{ id: '1', fingerprint: 'test', action: 'vote', createdAt: new Date(now - 5000) },
-				{ id: '2', fingerprint: 'test', action: 'vote', createdAt: new Date(now - 4000) },
-				{ id: '3', fingerprint: 'test', action: 'vote', createdAt: new Date(now - 3000) },
-				{ id: '4', fingerprint: 'test', action: 'vote', createdAt: new Date(now - 2000) },
-				{ id: '5', fingerprint: 'test', action: 'vote', createdAt: new Date(now - 1000) }
-			];
-
-			mockDb.select.mockReturnValue({
-				from: vi.fn().mockReturnValue({
-					where: vi.fn().mockResolvedValueOnce(entries)
-				})
-			});
-
-			const result = await checkRateLimit(mockDb, 'test', 'vote', undefined, config);
-			expect(result.allowed).toBe(false);
+		it('should use TIP_RATE_LIMIT_PER_HOUR from env', async () => {
+			const env = { TIP_RATE_LIMIT_PER_HOUR: '10' };
+			const config = getConfig('tip', env);
+			expect(config.maxRequests).toBe(10);
 		});
 
-		it('should use sliding window - only count entries within window', async () => {
-			const windowMs = 60000;
-			const config: RateLimitConfig = { maxRequests: 2, windowMs };
-			const now = Date.now();
+		it('should fallback to default for invalid env value', async () => {
+			const env = { VOTE_RATE_LIMIT_PER_HOUR: 'invalid' };
+			const config = getConfig('vote', env);
+			expect(config.maxRequests).toBe(DEFAULT_MAX_REQUESTS);
+		});
 
-			// One entry is outside window (65 seconds ago)
-			const entriesWithinWindow = [
-				{ id: '2', fingerprint: 'test', action: 'vote', createdAt: new Date(now - 10000) }
-			];
+		it('should fallback to default for empty env value', async () => {
+			const env = { VOTE_RATE_LIMIT_PER_HOUR: '' };
+			const config = getConfig('vote', env);
+			expect(config.maxRequests).toBe(DEFAULT_MAX_REQUESTS);
+		});
 
-			mockDb.select.mockReturnValue({
-				from: vi.fn().mockReturnValue({
-					where: vi
-						.fn()
-						.mockResolvedValueOnce(entriesWithinWindow) // First check
-						.mockResolvedValueOnce([...entriesWithinWindow, { id: 'new' }]) // Re-check
-				})
-			});
-			mockDb.insert.mockReturnValue({
-				values: vi.fn().mockResolvedValue(undefined)
-			});
-
-			const result = await checkRateLimit(mockDb, 'test', 'vote', undefined, config);
-			expect(result.allowed).toBe(true);
+		it('should fallback to default for unknown action', async () => {
+			const config = getConfig('unknown-action');
+			expect(config.maxRequests).toBe(DEFAULT_MAX_REQUESTS);
 		});
 	});
 
 	describe('cleanupRateLimits', () => {
-		it('should delete entries older than the window', async () => {
+		it('should delete entries with expired windows', async () => {
 			mockDb.delete.mockReturnValue({
 				where: vi.fn().mockResolvedValue(undefined)
 			});
@@ -433,54 +254,6 @@ describe('rateLimiter', () => {
 		});
 	});
 
-	describe('sliding window behavior', () => {
-		it('should allow request after oldest entry expires from window', async () => {
-			const windowMs = 1000;
-			const config: RateLimitConfig = { maxRequests: 1, windowMs };
-
-			mockDb.select.mockReturnValue({
-				from: vi.fn().mockReturnValue({
-					where: vi
-						.fn()
-						.mockResolvedValueOnce([]) // First check
-						.mockResolvedValueOnce([{ id: 'new' }]) // Re-check
-				})
-			});
-			mockDb.insert.mockReturnValue({
-				values: vi.fn().mockResolvedValue(undefined)
-			});
-
-			const result1 = await checkRateLimit(mockDb, 'test', 'vote', undefined, config);
-			expect(result1.allowed).toBe(true);
-		});
-
-		it('should correctly calculate when next request will be allowed', async () => {
-			const windowMs = 3600000;
-			const config: RateLimitConfig = { maxRequests: 100, windowMs };
-			const now = Date.now();
-
-			// 100 requests, oldest was 30 minutes ago
-			const entries = Array.from({ length: 100 }, (_, i) => ({
-				id: String(i),
-				fingerprint: 'test',
-				action: 'vote',
-				createdAt: new Date(now - 1800000 + i * 100)
-			}));
-
-			mockDb.select.mockReturnValue({
-				from: vi.fn().mockReturnValue({
-					where: vi.fn().mockResolvedValueOnce(entries)
-				})
-			});
-
-			const result = await checkRateLimit(mockDb, 'test', 'vote', undefined, config);
-
-			expect(result.allowed).toBe(false);
-			expect(result.retryAfter).toBeGreaterThan(1700);
-			expect(result.retryAfter).toBeLessThan(1900);
-		});
-	});
-
 	describe('getConfig', () => {
 		it('should return default when no env provided', () => {
 			const config = getConfig('vote');
@@ -488,33 +261,10 @@ describe('rateLimiter', () => {
 			expect(config.windowMs).toBe(WINDOW_MS);
 		});
 
-		it('should use VOTE_RATE_LIMIT_PER_HOUR from env', () => {
+		it('should use vote limit for unknown action', async () => {
 			const env = { VOTE_RATE_LIMIT_PER_HOUR: '50' };
-			const config = getConfig('vote', env);
+			const config = getConfig('unknown-action', env);
 			expect(config.maxRequests).toBe(50);
-		});
-
-		it('should use TIP_RATE_LIMIT_PER_HOUR from env', () => {
-			const env = { TIP_RATE_LIMIT_PER_HOUR: '10' };
-			const config = getConfig('tip', env);
-			expect(config.maxRequests).toBe(10);
-		});
-
-		it('should fallback to default for invalid env value', () => {
-			const env = { VOTE_RATE_LIMIT_PER_HOUR: 'invalid' };
-			const config = getConfig('vote', env);
-			expect(config.maxRequests).toBe(DEFAULT_MAX_REQUESTS);
-		});
-
-		it('should fallback to default for empty env value', () => {
-			const env = { VOTE_RATE_LIMIT_PER_HOUR: '' };
-			const config = getConfig('vote', env);
-			expect(config.maxRequests).toBe(DEFAULT_MAX_REQUESTS);
-		});
-
-		it('should fallback to default for unknown action', () => {
-			const config = getConfig('unknown-action');
-			expect(config.maxRequests).toBe(DEFAULT_MAX_REQUESTS);
 		});
 	});
 });
