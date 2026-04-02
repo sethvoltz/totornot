@@ -291,3 +291,14 @@ body {
 	opacity: 1;
 	transform: scale(1);
 }
+
+/* Mobile: use vertical slide instead of horizontal */
+@media (max-width: 767px) {
+	.vote-card-wrap.winner {
+		transform: translateY(var(--slide-y)) scale(1.15);
+	}
+
+	.vote-card-wrap.loser {
+		transform: translateY(var(--slide-y)) scale(0.6);
+	}
+}

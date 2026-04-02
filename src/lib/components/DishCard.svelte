@@ -36,11 +36,11 @@
 <button
 	type="button"
 	data-testid="dish-card"
-	class="diner-card relative flex cursor-pointer flex-col overflow-hidden text-left focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+	class="diner-card relative flex w-full cursor-pointer flex-col overflow-hidden text-left focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
 	class:neon-glow={selected &&
 		typeof window !== 'undefined' &&
 		document.documentElement.classList.contains('dark')}
-	style="{selected ? 'transform: scale(1.02);' : ''} max-width: 320px;"
+	style={selected ? 'transform: scale(1.02);' : ''}
 	{onclick}
 	aria-pressed={selected}
 	disabled={loading || disabled}
@@ -150,7 +150,8 @@
 		z-index: 50;
 	}
 
-	.tooltip-container:hover .tooltip {
+	.tooltip-container:hover .tooltip,
+	.tooltip-container:focus-within .tooltip {
 		visibility: visible;
 		opacity: 1;
 	}
