@@ -15,8 +15,10 @@
 	let fading = $state(false);
 
 	// Measured at vote time so the slide is exact regardless of screen size
-	let leftSlide = $state(0);
-	let rightSlide = $state(0);
+	let leftSlideX = $state(0);
+	let rightSlideX = $state(0);
+	let leftSlideY = $state(0);
+	let rightSlideY = $state(0);
 
 	// DOM refs
 	let arenaEl = $state<HTMLElement>();
@@ -48,9 +50,12 @@
 			const arenaRect = arenaEl.getBoundingClientRect();
 			const leftRect = leftCardEl.getBoundingClientRect();
 			const rightRect = rightCardEl.getBoundingClientRect();
-			const center = arenaRect.left + arenaRect.width / 2;
-			leftSlide = center - (leftRect.left + leftRect.width / 2);
-			rightSlide = center - (rightRect.left + rightRect.width / 2);
+			const centerX = arenaRect.left + arenaRect.width / 2;
+			const centerY = arenaRect.top + arenaRect.height / 2;
+			leftSlideX = centerX - (leftRect.left + leftRect.width / 2);
+			rightSlideX = centerX - (rightRect.left + rightRect.width / 2);
+			leftSlideY = centerY - (leftRect.top + leftRect.height / 2);
+			rightSlideY = centerY - (rightRect.top + rightRect.height / 2);
 		}
 
 		busy = true;
@@ -90,8 +95,10 @@
 		// Clear animation state (still invisible)
 		winnerId = '';
 		loserId = '';
-		leftSlide = 0;
-		rightSlide = 0;
+		leftSlideX = 0;
+		rightSlideX = 0;
+		leftSlideY = 0;
+		rightSlideY = 0;
 
 		// Fade back in
 		fading = false;
@@ -104,7 +111,7 @@
 	<meta name="description" content={m.voting_subheading()} />
 </svelte:head>
 
-<div class="mx-auto max-w-5xl px-6 py-16">
+<div class="mx-auto max-w-5xl px-6 py-8 md:py-16">
 	<div class="mb-12 text-center">
 		<h1 class="neon-sign text-4xl md:text-5xl" style="color: var(--text-primary);">
 			{m.voting_heading()}
@@ -126,15 +133,15 @@
 		{:else}
 			<div class="voting-arena" bind:this={arenaEl}>
 				<div
-					class="voting-arena-inner flex items-center justify-center gap-8 md:gap-12"
+					class="voting-arena-inner flex flex-col items-center justify-center gap-4 md:flex-row md:gap-12"
 					class:fading
 				>
-					<!-- Left card -->
+					<!-- Left/Top card -->
 					<div
-						class="vote-card-wrap flex-1"
+						class="vote-card-wrap max-w-60 md:max-w-xs md:flex-1"
 						class:winner={dishes[0].id === winnerId}
 						class:loser={dishes[0].id === loserId}
-						style="max-width: 320px; --slide-x: {leftSlide}px;"
+						style="--slide-x: {leftSlideX}px; --slide-y: {leftSlideY}px;"
 						data-testid="dish-card-container"
 						bind:this={leftCardEl}
 					>
@@ -152,21 +159,21 @@
 					</div>
 
 					<!-- VS badge -->
-					<div class="flex shrink-0 flex-col items-center justify-center px-2">
+					<div class="flex shrink-0 flex-col items-center justify-center">
 						<div
-							class="flex h-16 w-16 items-center justify-center rounded-full md:h-20 md:w-20"
+							class="flex h-12 w-12 items-center justify-center rounded-full md:h-20 md:w-20"
 							style="background-color: var(--bg-secondary);"
 						>
-							<span data-testid="vs-badge" class="vs-badge text-xl md:text-2xl">{m.vs()}</span>
+							<span data-testid="vs-badge" class="vs-badge text-base md:text-2xl">{m.vs()}</span>
 						</div>
 					</div>
 
-					<!-- Right card -->
+					<!-- Right/Bottom card -->
 					<div
-						class="vote-card-wrap flex-1"
+						class="vote-card-wrap max-w-60 md:max-w-xs md:flex-1"
 						class:winner={dishes[1].id === winnerId}
 						class:loser={dishes[1].id === loserId}
-						style="max-width: 320px; --slide-x: {rightSlide}px;"
+						style="--slide-x: {rightSlideX}px; --slide-y: {rightSlideY}px;"
 						data-testid="dish-card-container"
 						bind:this={rightCardEl}
 					>
