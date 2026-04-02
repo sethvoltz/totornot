@@ -6,6 +6,7 @@ import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request, platform }) => {
 	try {
+		const ip = request.headers.get('CF-Connecting-IP') || null;
 		const body = (await request.json()) as { winnerId?: string; loserId?: string };
 		const { winnerId, loserId } = body;
 
@@ -38,18 +39,11 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 		const winnerDish = winnerResult[0];
 		const loserDish = loserResult[0];
 
-		await db.insert(votes).values([
-			{
-				dishId: winnerId,
-				value: 1,
-				fingerprint: 'system'
-			},
-			{
-				dishId: loserId,
-				value: -1,
-				fingerprint: 'system'
-			}
-		]);
+		await db.insert(votes).values({
+			winnerId,
+			loserId,
+			ip
+		});
 
 		const { winner: winnerElo, loser: loserElo } = processVote(winnerDish.elo, loserDish.elo);
 

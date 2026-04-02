@@ -150,7 +150,8 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 		await db.insert(dishSubmissions).values({
 			dishName: dishName.trim(),
 			description: description.trim(),
-			submitterName: submitterName?.trim() || null
+			submitterName: submitterName?.trim() || null,
+			submitterIp: ip
 		});
 
 		return new Response(JSON.stringify({ success: true }), {
