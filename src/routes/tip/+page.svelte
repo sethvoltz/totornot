@@ -1,11 +1,6 @@
 <script lang="ts">
 	import * as m from '$lib/paraglide/messages';
 	import { localizeHref } from '$lib/paraglide/runtime';
-	import { onMount, tick } from 'svelte';
-
-	let { data } = $props<{
-		data: { turnstileSiteKey: string | null };
-	}>();
 
 	let dishName = $state('');
 	let description = $state('');
@@ -13,9 +8,6 @@
 	let submitting = $state(false);
 	let success = $state(false);
 	let error = $state<string | null>(null);
-	let turnstileWidgetId: string | null = $state(null);
-	let turnstileToken = $state('');
-	let mounted = $state(false);
 
 	function resetForm() {
 		dishName = '';
@@ -23,34 +15,11 @@
 		submitterName = '';
 		success = false;
 		error = null;
-		turnstileToken = '';
-		if (turnstileWidgetId && window.turnstile) {
-			window.turnstile.reset(turnstileWidgetId);
-		}
 	}
-
-	onMount(async () => {
-		mounted = true;
-		await tick();
-		if (data.turnstileSiteKey && window.turnstile) {
-			const widgetId = window.turnstile.render('#turnstile-widget', {
-				sitekey: data.turnstileSiteKey,
-				callback: (token: string) => {
-					turnstileToken = token;
-				}
-			});
-			turnstileWidgetId = widgetId;
-		}
-	});
 
 	async function handleSubmit(e: Event) {
 		e.preventDefault();
 		if (submitting) return;
-
-		if (!turnstileToken) {
-			error = m.tip_error_generic();
-			return;
-		}
 
 		submitting = true;
 		error = null;
@@ -62,8 +31,7 @@
 				body: JSON.stringify({
 					dishName,
 					description,
-					submitterName: submitterName || undefined,
-					turnstileToken
+					submitterName: submitterName || undefined
 				})
 			});
 
@@ -78,17 +46,9 @@
 				} else {
 					error = result.error || m.tip_error_generic();
 				}
-				if (turnstileWidgetId && window.turnstile) {
-					window.turnstile.reset(turnstileWidgetId);
-				}
-				turnstileToken = '';
 			}
 		} catch {
 			error = m.tip_error_generic();
-			if (turnstileWidgetId && window.turnstile) {
-				window.turnstile.reset(turnstileWidgetId);
-			}
-			turnstileToken = '';
 		} finally {
 			submitting = false;
 		}
@@ -97,7 +57,6 @@
 
 <svelte:head>
 	<title>{m.tip_line_title()} | {m.site_title()}</title>
-	<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </svelte:head>
 
 <div class="mx-auto max-w-3xl px-6 py-10">
@@ -204,15 +163,9 @@
 			/>
 		</div>
 
-		{#if mounted && data.turnstileSiteKey}
-			<div class="mb-5 flex justify-center">
-				<div id="turnstile-widget" class="cf-turnstile"></div>
-			</div>
-		{/if}
-
 		<button
 			type="submit"
-			disabled={submitting || (mounted && data.turnstileSiteKey && !turnstileToken)}
+			disabled={submitting}
 			class="w-full cursor-pointer rounded-full py-2.5 text-lg font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-50"
 			style="background-color: var(--accent-primary); color: white;"
 		>

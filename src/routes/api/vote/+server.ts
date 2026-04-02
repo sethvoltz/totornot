@@ -1,13 +1,10 @@
 import { getDb } from '$lib/server/db';
-import { dishes, rateLimits, votes } from '$lib/server/db/schema';
+import { dishes, votes } from '$lib/server/db/schema';
 import { processVote } from '$lib/elo';
-import { and, eq, gt, sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { hashIp } from '$lib/server/crypto';
-import { dev } from '$app/environment';
+import { checkRateLimit } from '$lib/server/rateLimiter';
 import type { RequestHandler } from './$types';
-
-const RATE_LIMIT_MAX = dev ? 1000 : 100;
-const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 
 function validateCsrf(request: Request): boolean {
 	const origin = request.headers.get('Origin');
@@ -69,60 +66,22 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 
 		// Rate limiting
 		if (ipHash) {
-			const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW_MS);
-			const existingRates = await db
-				.select()
-				.from(rateLimits)
-				.where(
-					and(
-						eq(rateLimits.fingerprint, ipHash),
-						eq(rateLimits.action, 'vote'),
-						gt(rateLimits.windowStart, windowStart)
-					)
-				);
+			const rateLimitResult = await checkRateLimit(db, ipHash, 'vote');
 
-			const totalCount = existingRates.reduce((sum, r) => sum + r.count, 0);
-			if (totalCount >= RATE_LIMIT_MAX) {
-				const oldestWindow = existingRates.reduce(
-					(oldest, r) => (r.windowStart < oldest ? r.windowStart : oldest),
-					existingRates[0].windowStart
-				);
-				const retryAfter = Math.ceil(
-					(RATE_LIMIT_WINDOW_MS - (Date.now() - oldestWindow.getTime())) / 1000
-				);
-
+			if (!rateLimitResult.allowed) {
 				return new Response(
 					JSON.stringify({
 						error: 'Rate limit exceeded',
-						retryAfter
+						retryAfter: rateLimitResult.retryAfter
 					}),
 					{
 						status: 429,
 						headers: {
 							'Content-Type': 'application/json',
-							'Retry-After': String(retryAfter)
+							'Retry-After': String(rateLimitResult.retryAfter)
 						}
 					}
 				);
-			}
-
-			const currentWindow = existingRates.find((r) => {
-				const windowAge = Date.now() - r.windowStart.getTime();
-				return windowAge < RATE_LIMIT_WINDOW_MS;
-			});
-
-			if (currentWindow) {
-				await db
-					.update(rateLimits)
-					.set({ count: currentWindow.count + 1 })
-					.where(eq(rateLimits.id, currentWindow.id));
-			} else {
-				await db.insert(rateLimits).values({
-					fingerprint: ipHash,
-					action: 'vote',
-					windowStart: new Date(),
-					count: 1
-				});
 			}
 		}
 

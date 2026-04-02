@@ -174,34 +174,14 @@ wrangler d1 migrations apply totornot --remote
 > Wrangler tracks applied migrations in the `d1_migrations` table, so you can safely run this multiple times - already-applied migrations are skipped.
 > Initial seed data (30 potato dishes) is included in the first migration.
 
-**4. Create a Turnstile widget**
-
-Go to [Cloudflare Turnstile](https://dash.cloudflare.com/?to=/:account/turnstile) → **Add widget**:
-
-- Type: **Invisible**
-- Add your domain (e.g. `spudsupremacy.com`)
-
-Copy the **Site Key** and **Secret Key**.
-
-**5. Set production secrets**
+**4. Set production secrets**
 
 ```sh
-# Turnstile secret key (server-side only — stored encrypted in Cloudflare)
-wrangler secret put TURNSTILE_SECRET_KEY
-
 # IP hashing secret (generate with: openssl rand -base64 32)
 wrangler secret put IP_HASH_SECRET
-
-# Site key is public — add it as a plain var in wrangler.jsonc:
 ```
 
-```jsonc
-"vars": {
-  "PUBLIC_TURNSTILE_SITE_KEY": "your_site_key_here"
-}
-```
-
-**6. Deploy**
+**5. Deploy**
 
 ```sh
 pnpm build
