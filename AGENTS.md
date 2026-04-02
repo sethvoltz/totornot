@@ -1,3 +1,8 @@
+## Agent Guidelines
+
+- After learning something non-obvious about the codebase, infrastructure, or gotchas, add it to this file automatically
+- For large or structural changes to this file, check with the user first
+
 ## Project Configuration
 
 - **Language**: TypeScript
