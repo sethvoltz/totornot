@@ -1,4 +1,4 @@
-import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { integer, primaryKey, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 export const dishes = sqliteTable('dishes', {
 	id: text('id')
@@ -31,12 +31,16 @@ export const votes = sqliteTable('votes', {
 		.$defaultFn(() => new Date())
 });
 
-export const rateLimits = sqliteTable('rate_limits', {
-	fingerprint: text('fingerprint').primaryKey(),
-	action: text('action').notNull(),
-	windowStart: integer('window_start', { mode: 'timestamp' }).notNull(),
-	count: integer('count').notNull().default(1)
-});
+export const rateLimits = sqliteTable(
+	'rate_limits',
+	{
+		fingerprint: text('fingerprint').notNull(),
+		action: text('action').notNull(),
+		tokens: real('tokens').notNull(),
+		lastRefill: integer('last_refill').notNull() // epoch ms, plain integer to avoid Drizzle timestamp mode issues
+	},
+	(t) => [primaryKey({ columns: [t.fingerprint, t.action] })]
+);
 
 export const dishSubmissions = sqliteTable('dish_submissions', {
 	id: text('id')
