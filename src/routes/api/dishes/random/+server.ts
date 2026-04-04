@@ -48,7 +48,7 @@ export const GET: RequestHandler = async ({ platform, request, cookies }) => {
 	const updatedCookie = nextCooldownIds(excludeIds, newIds);
 
 	cookies.set(COOKIE_NAME, updatedCookie.join(','), {
-		path: '/api/dishes/random',
+		path: '/',
 		httpOnly: true,
 		sameSite: 'strict',
 		maxAge: 7200
