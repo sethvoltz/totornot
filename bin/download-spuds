@@ -112,7 +112,9 @@ async function downloadImage(url) {
 			waitSource = `backoff`;
 		}
 
-		console.log(`\n  429 rate limited (${waitSource}) — waiting ${waitMs / 1000}s before retry ${attempt}/${MAX_RETRIES}...`);
+		console.log(
+			`\n  429 rate limited (${waitSource}) — waiting ${waitMs / 1000}s before retry ${attempt}/${MAX_RETRIES}...`
+		);
 		await sleep(waitMs);
 	}
 }
@@ -174,7 +176,7 @@ async function main() {
 		`-- Created: ${today}`,
 		`-- Images sourced from Wikimedia Commons`,
 		`-- ELO is set to the median ELO of existing dishes at migration time`,
-		``,
+		``
 	];
 
 	let successCount = 0;
@@ -234,7 +236,7 @@ async function main() {
 			`INSERT INTO dishes (id, name, description, image_path, image_attribution, elo, submitted_by, created_at) VALUES`,
 			`  ('${uuid}', '${safeName}', '${safeDescription}', '${imageFilename}', ${creditsSQL},`,
 			`   ${MEDIAN_ELO_SUBQUERY},`,
-			`   NULL, unixepoch());`,
+			`   NULL, unixepoch());`
 		].join('\n');
 
 		migrationLines.push(insert);

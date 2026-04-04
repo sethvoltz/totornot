@@ -87,7 +87,7 @@ async function fetchWikitext() {
 
 	console.log('Fetching wikitext from Wikipedia...');
 	const res = await fetch(url.toString(), {
-		headers: { 'User-Agent': 'TotOrNot/1.0 (potato dish scraper; contact@example.com)' },
+		headers: { 'User-Agent': 'TotOrNot/1.0 (potato dish scraper; contact@example.com)' }
 	});
 
 	if (!res.ok) throw new Error(`Wikipedia API returned ${res.status}`);
@@ -173,7 +173,7 @@ function parseWikitextTable(wikitext) {
 		rows.push({
 			name: cleanName,
 			description,
-			imageFilename,
+			imageFilename
 		});
 	}
 
@@ -198,8 +198,8 @@ async function fetchImageMetadata(filename) {
 
 		const res = await fetch(url.toString(), {
 			headers: {
-				'User-Agent': 'TotOrNot/1.0 (potato dish scraper; contact@example.com)',
-			},
+				'User-Agent': 'TotOrNot/1.0 (potato dish scraper; contact@example.com)'
+			}
 		});
 
 		if (!res.ok) continue;
@@ -270,7 +270,7 @@ async function main() {
 			description: row.description,
 			image_url: imageUrl,
 			image_credits: imageCredits,
-			slug: kebabCase(row.name),
+			slug: kebabCase(row.name)
 		});
 
 		if (i < rows.length) {
@@ -285,7 +285,7 @@ async function main() {
 	console.log('\nNext steps:');
 	console.log('  1. Review and edit data/potato-dishes-scrape.json');
 	console.log('     - Adjust slugs as needed');
-	console.log('     - Remove dishes you don\'t want');
+	console.log("     - Remove dishes you don't want");
 	console.log('     - Fix any description or credits issues');
 	console.log('  2. Run: bin/download-spuds');
 }
