@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/sethvoltz/totornot/compare/totornot-v1.6.0...totornot-v1.7.0) (2026-04-04)
+
+
+### Features
+
+* add cooldown window to prevent dish repetition ([#41](https://github.com/sethvoltz/totornot/issues/41)) ([b9f4489](https://github.com/sethvoltz/totornot/commit/b9f448909ca4bf66ba9053659e840fe7929d2973))
+
 ## [1.6.0](https://github.com/sethvoltz/totornot/compare/totornot-v1.5.0...totornot-v1.6.0) (2026-04-04)
 
 
