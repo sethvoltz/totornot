@@ -1,0 +1,264 @@
+#!/usr/bin/env node
+
+/**
+ * Script 2: Download images and generate a migration file for new potato dishes.
+ *
+ * Reads data/potato-dishes-scrape.json (which you've edited after running
+ * bin/scrape-spuds) and for each entry with a non-empty slug:
+ *   - Downloads the image from image_url into static/images/dishes/<slug>.<ext>
+ *   - Generates a UUID for the dish
+ *   - Adds an INSERT to a new migration file
+ *
+ * The ELO score in each INSERT is set to the median ELO of all existing dishes
+ * at the time the migration runs, computed via an inline SQL subquery. This
+ * means the value adapts correctly to whichever environment (local, staging,
+ * production) the migration is applied against.
+ *
+ * Output:
+ *   - static/images/dishes/<slug>.<ext>  (one per dish)
+ *   - drizzle/migrations/000N_add_new_spuds.sql
+ *
+ * Usage:
+ *   bin/download-spuds
+ */
+
+import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from 'fs';
+import { join, dirname, extname } from 'path';
+import { fileURLToPath } from 'url';
+import { randomUUID } from 'crypto';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT = join(__dirname, '..');
+const INPUT_PATH = join(ROOT, 'data', 'potato-dishes-scrape.json');
+const MIGRATIONS_DIR = join(ROOT, 'drizzle', 'migrations');
+const IMAGES_DIR = join(ROOT, 'static', 'images', 'dishes');
+
+// Delay between image downloads (ms)
+const DOWNLOAD_DELAY_MS = 1000;
+// Max retries on 429 / transient errors
+const MAX_RETRIES = 5;
+
+function sleep(ms) {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function escapeSQL(str) {
+	return str.replace(/'/g, "''");
+}
+
+/**
+ * Determine the next migration number by scanning the migrations directory.
+ */
+function getNextMigrationNumber() {
+	if (!existsSync(MIGRATIONS_DIR)) {
+		mkdirSync(MIGRATIONS_DIR, { recursive: true });
+		return 1;
+	}
+	const nums = readdirSync(MIGRATIONS_DIR)
+		.filter((f) => f.endsWith('.sql'))
+		.map((f) => parseInt(f.split('_')[0]))
+		.filter((n) => !isNaN(n))
+		.sort((a, b) => b - a);
+
+	return nums.length > 0 ? nums[0] + 1 : 1;
+}
+
+/**
+ * Extract the file extension from a URL, defaulting to .jpg.
+ * Strips query strings and handles uppercase.
+ */
+function extensionFromUrl(url) {
+	const pathname = new URL(url).pathname;
+	const ext = extname(pathname).toLowerCase();
+	// Accept common image extensions; fall back to .jpg
+	return ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'].includes(ext) ? ext : '.jpg';
+}
+
+/**
+ * Download a file from a URL and return its contents as a Buffer.
+ * Retries on 429 (rate limit) and 5xx errors with exponential backoff,
+ * honouring the Retry-After header when present.
+ *
+ * Note: Wikimedia's CDN blocks requests with custom User-Agent strings,
+ * so we intentionally omit it and let Node's default UA through.
+ */
+async function downloadImage(url) {
+	let attempt = 0;
+	while (true) {
+		const res = await fetch(url);
+
+		if (res.ok) {
+			const buffer = await res.arrayBuffer();
+			return Buffer.from(buffer);
+		}
+
+		const retryable = res.status === 429 || res.status >= 500;
+		attempt++;
+
+		if (!retryable || attempt > MAX_RETRIES) {
+			throw new Error(`HTTP ${res.status} fetching ${url}`);
+		}
+
+		// Honour Retry-After if present, otherwise exponential backoff
+		const retryAfterHeader = res.headers.get('retry-after');
+		let waitMs;
+		let waitSource;
+		if (retryAfterHeader) {
+			const seconds = parseInt(retryAfterHeader, 10);
+			waitMs = isNaN(seconds) ? 5000 : seconds * 1000;
+			waitSource = `Retry-After: ${retryAfterHeader}s`;
+		} else {
+			waitMs = Math.min(2 ** attempt * 1000, 30000); // 2s, 4s, 8s, 16s, 30s
+			waitSource = `backoff`;
+		}
+
+		console.log(`\n  429 rate limited (${waitSource}) — waiting ${waitMs / 1000}s before retry ${attempt}/${MAX_RETRIES}...`);
+		await sleep(waitMs);
+	}
+}
+
+/**
+ * The inline SQL subquery that resolves to the median ELO of all current dishes.
+ *
+ * For odd N:  returns the middle value
+ * For even N: returns the average of the two middle values
+ *
+ * Uses expressions in LIMIT/OFFSET, which D1 (SQLite 3.44+) supports.
+ */
+const MEDIAN_ELO_SUBQUERY = `(SELECT AVG(elo) FROM (
+    SELECT elo FROM dishes ORDER BY elo
+    LIMIT (SELECT CASE WHEN COUNT(*) % 2 = 0 THEN 2 ELSE 1 END FROM dishes)
+    OFFSET (SELECT (COUNT(*) - 1) / 2 FROM dishes)
+  ))`;
+
+async function main() {
+	// --- Read input file ---
+	if (!existsSync(INPUT_PATH)) {
+		console.error(`Error: ${INPUT_PATH} not found.`);
+		console.error('Run bin/scrape-spuds first to generate the working file.');
+		process.exit(1);
+	}
+
+	let dishes;
+	try {
+		dishes = JSON.parse(readFileSync(INPUT_PATH, 'utf-8'));
+	} catch (err) {
+		console.error(`Error parsing ${INPUT_PATH}: ${err.message}`);
+		process.exit(1);
+	}
+
+	if (!Array.isArray(dishes)) {
+		console.error('Error: Expected an array in the JSON file.');
+		process.exit(1);
+	}
+
+	// Filter to entries with a non-empty slug
+	const toProcess = dishes.filter((d) => d.slug && d.slug.trim() !== '');
+	const skipped = dishes.length - toProcess.length;
+
+	console.log(`Loaded ${dishes.length} entries from data/potato-dishes-scrape.json`);
+	if (skipped > 0) {
+		console.log(`Skipping ${skipped} entries with empty slugs.`);
+	}
+	console.log(`Processing ${toProcess.length} dishes...\n`);
+
+	// --- Build migration file ---
+	const nextNum = getNextMigrationNumber();
+	const numStr = String(nextNum).padStart(4, '0');
+	const migrationFilename = `${numStr}_add_new_spuds.sql`;
+	const migrationPath = join(MIGRATIONS_DIR, migrationFilename);
+
+	const today = new Date().toISOString().split('T')[0];
+	let migrationLines = [
+		`-- Migration: Add new potato dishes scraped from Wikipedia`,
+		`-- Created: ${today}`,
+		`-- Images sourced from Wikimedia Commons`,
+		`-- ELO is set to the median ELO of existing dishes at migration time`,
+		``,
+	];
+
+	let successCount = 0;
+	let failCount = 0;
+
+	mkdirSync(IMAGES_DIR, { recursive: true });
+
+	for (let i = 0; i < toProcess.length; i++) {
+		const dish = toProcess[i];
+		const { name, description, image_url, image_credits, slug } = dish;
+
+		// Determine extension and filename up front so we can check for existing file
+		const ext = image_url ? extensionFromUrl(image_url) : '.jpg';
+		const imageFilename = `${slug}${ext}`;
+		const imagePath = join(IMAGES_DIR, imageFilename);
+
+		process.stdout.write(`[${i + 1}/${toProcess.length}] ${name}...`);
+
+		// Skip entries with no image URL (shouldn't happen given Script 1 filters, but be safe)
+		if (!image_url) {
+			console.log(' skipped (no image_url)');
+			failCount++;
+			continue;
+		}
+
+		// Skip if already downloaded (idempotent re-runs after interruption)
+		if (existsSync(imagePath)) {
+			console.log(` already exists, skipping download`);
+		} else {
+			// Download image
+			let imageBuffer;
+			try {
+				imageBuffer = await downloadImage(image_url);
+			} catch (err) {
+				console.log(` FAILED to download image: ${err.message}`);
+				failCount++;
+				if (i < toProcess.length - 1) await sleep(DOWNLOAD_DELAY_MS);
+				continue;
+			}
+
+			writeFileSync(imagePath, imageBuffer);
+			if (i < toProcess.length - 1) await sleep(DOWNLOAD_DELAY_MS);
+		}
+
+		// Generate UUID for this dish
+		const uuid = randomUUID();
+
+		// Escape values for SQL
+		const safeName = escapeSQL(name);
+		const safeDescription = description ? escapeSQL(description) : '';
+		const safeCredits = image_credits ? escapeSQL(image_credits) : 'NULL';
+		const creditsSQL = image_credits ? `'${safeCredits}'` : 'NULL';
+
+		// Build INSERT statement
+		const insert = [
+			`-- ${name}`,
+			`INSERT INTO dishes (id, name, description, image_path, image_attribution, elo, submitted_by, created_at) VALUES`,
+			`  ('${uuid}', '${safeName}', '${safeDescription}', '${imageFilename}', ${creditsSQL},`,
+			`   ${MEDIAN_ELO_SUBQUERY},`,
+			`   NULL, unixepoch());`,
+		].join('\n');
+
+		migrationLines.push(insert);
+		migrationLines.push('');
+
+		console.log(` saved as ${imageFilename}`);
+		successCount++;
+	}
+
+	// Write migration file
+	writeFileSync(migrationPath, migrationLines.join('\n') + '\n', 'utf-8');
+
+	console.log(`\n--- Summary ---`);
+	console.log(`${successCount} dishes added successfully`);
+	if (failCount > 0) {
+		console.log(`${failCount} dishes failed (check output above)`);
+	}
+	console.log(`\nMigration written to: drizzle/migrations/${migrationFilename}`);
+	console.log(`Images saved to:       static/images/dishes/`);
+	console.log(`\nTo apply locally:`);
+	console.log(`  wrangler d1 migrations apply totornot --local`);
+}
+
+main().catch((err) => {
+	console.error('Error:', err.message);
+	process.exit(1);
+});
