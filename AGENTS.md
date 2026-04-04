@@ -3,6 +3,10 @@
 - After learning something non-obvious about the codebase, infrastructure, or gotchas, add it to this file automatically
 - For large or structural changes to this file, check with the user first
 
+## SvelteKit Best Practices
+
+- **Always use SvelteKit's `event.cookies` API** for setting cookies in `+server.ts` and `+page.server.ts` files, not raw `Response` objects with `Set-Cookie` headers. SvelteKit handles cookie propagation correctly through its event system, while manual `Set-Cookie` headers may not work as expected.
+
 ## Project Configuration
 
 - **Language**: TypeScript
