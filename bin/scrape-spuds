@@ -1,0 +1,296 @@
+#!/usr/bin/env node
+
+/**
+ * Script 1: Scrape potato dishes from Wikipedia and build a working JSON file.
+ *
+ * For each dish that has an image on the List of potato dishes Wikipedia page:
+ *   - Extracts name, description, and image filename
+ *   - Queries the Wikimedia Commons API for full-res image URL, author, and license
+ *   - Formats image_credits in the project's standard attribution format
+ *   - Auto-generates a slug (kebab-case of name) for you to review/edit
+ *
+ * Output: data/potato-dishes-scrape.json
+ *
+ * Usage:
+ *   bin/scrape-spuds
+ */
+
+import { writeFileSync, mkdirSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT = join(__dirname, '..');
+const OUTPUT_PATH = join(ROOT, 'data', 'potato-dishes-scrape.json');
+
+const WIKI_API = 'https://en.wikipedia.org/w/api.php';
+const COMMONS_API = 'https://commons.wikimedia.org/w/api.php';
+const ENWIKI_API = 'https://en.wikipedia.org/w/api.php';
+
+// Polite delay between Commons API requests (ms)
+const REQUEST_DELAY_MS = 350;
+
+function sleep(ms) {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function kebabCase(str) {
+	return str
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/^-|-$/g, '');
+}
+
+/** Strip HTML tags from a string */
+function stripHtml(html) {
+	return html
+		.replace(/<[^>]+>/g, '')
+		.replace(/&amp;/g, '&')
+		.replace(/&lt;/g, '<')
+		.replace(/&gt;/g, '>')
+		.replace(/&quot;/g, '"')
+		.replace(/&#039;/g, "'")
+		.replace(/&nbsp;/g, ' ')
+		.trim();
+}
+
+/** Strip wiki markup from description text */
+function stripWikiMarkup(text) {
+	return (
+		text
+			// Remove [[Link|Display]] → Display, or [[Link]] → Link
+			.replace(/\[\[(?:[^\]|]*\|)?([^\]]+)\]\]/g, '$1')
+			// Remove {{template|args}} entirely (license templates, refs, etc.)
+			.replace(/\{\{[^}]*\}\}/g, '')
+			// Remove <ref>...</ref> tags
+			.replace(/<ref[^>]*>.*?<\/ref>/gi, '')
+			// Remove <ref .../> self-closing tags
+			.replace(/<ref[^/]*\/>/gi, '')
+			// Remove HTML tags
+			.replace(/<[^>]+>/g, '')
+			// Collapse excess whitespace
+			.replace(/\s+/g, ' ')
+			.trim()
+	);
+}
+
+/**
+ * Fetch the wikitext for the List of potato dishes page.
+ */
+async function fetchWikitext() {
+	const url = new URL(WIKI_API);
+	url.searchParams.set('action', 'parse');
+	url.searchParams.set('page', 'List of potato dishes');
+	url.searchParams.set('prop', 'wikitext');
+	url.searchParams.set('format', 'json');
+	url.searchParams.set('formatversion', '2');
+
+	console.log('Fetching wikitext from Wikipedia...');
+	const res = await fetch(url.toString(), {
+		headers: { 'User-Agent': 'TotOrNot/1.0 (potato dish scraper; contact@example.com)' }
+	});
+
+	if (!res.ok) throw new Error(`Wikipedia API returned ${res.status}`);
+	const data = await res.json();
+	return data.parse.wikitext;
+}
+
+/**
+ * Parse the wikitext table into raw row objects.
+ * The table format is:
+ *   |-
+ *   | [[Dish name]] || [[File:Image.jpg|...]] || Region || Description
+ */
+function parseWikitextTable(wikitext) {
+	const rows = [];
+
+	// Extract the table content between {| and |}
+	// The relevant table starts after the intro text
+	const tableMatch = wikitext.match(/\{\|[^{]*class="wikitable[^"]*"([\s\S]*?)\|\}/);
+	if (!tableMatch) {
+		throw new Error('Could not find the wikitable in the wikitext');
+	}
+
+	const tableContent = tableMatch[1];
+
+	// Split into rows by |- delimiter
+	const rawRows = tableContent.split(/^\s*\|-/m).slice(1); // slice off header
+
+	for (const rawRow of rawRows) {
+		// Skip header rows (those containing ! cells)
+		if (/^\s*!/.test(rawRow)) continue;
+
+		// Split cells by || or newline-| pattern
+		// Cells can be on one line (|| separated) or multi-line (each on a new line starting with |)
+		const cellText = rawRow.trim();
+		if (!cellText) continue;
+
+		// Normalize: cells are separated by || or by lines starting with |
+		// First try single-line format: | cell1 || cell2 || cell3 || cell4
+		let cells;
+		if (cellText.startsWith('|')) {
+			// Multi-line: each newline-| is a cell
+			// Or single-line: cells separated by ||
+			const singleLine = cellText.replace(/\n\s*\|(?!\|)/g, ' || ');
+			cells = singleLine
+				.split('||')
+				.map((c) => c.replace(/^\s*\|?\s*/, '').trim())
+				.filter((c) => c.length > 0);
+		} else {
+			continue;
+		}
+
+		if (cells.length < 2) continue;
+
+		// Cell 0: Name — [[Article name|Display]] or [[Article name]]
+		const nameRaw = cells[0];
+		const nameMatch = nameRaw.match(/\[\[(?:[^\]|]*\|)?([^\]]+)\]\]/);
+		if (!nameMatch) continue; // skip non-dish rows (e.g. "Chips" redirect note)
+		const name = nameMatch[1].trim();
+
+		// Cell 1: Image — [[File:Foo.jpg|thumb|...]] or may be empty/colspan
+		const imageRaw = cells[1];
+		const fileMatch = imageRaw.match(/\[\[(?:File|Image):([^\]|]+?)(?:\|[^\]]+)?\]\]/i);
+		const imageFilename = fileMatch ? fileMatch[1].trim() : null;
+
+		// Skip rows without an image
+		if (!imageFilename) continue;
+
+		// Remaining cells: we try to get description (last substantive cell)
+		// Table columns: Name | Image | Region | Description
+		// But some rows have colspan or different layouts
+		let description = '';
+		if (cells.length >= 4) {
+			description = stripWikiMarkup(cells[cells.length - 1]);
+		} else if (cells.length === 3) {
+			// Could be Name | Image | Description (no region)
+			description = stripWikiMarkup(cells[2]);
+		}
+
+		// Clean up name (some names may have footnote markers)
+		const cleanName = stripWikiMarkup(name);
+
+		rows.push({
+			name: cleanName,
+			description,
+			imageFilename
+		});
+	}
+
+	return rows;
+}
+
+/**
+ * Query the Wikimedia Commons (or English Wikipedia) API for image metadata.
+ * Returns { imageUrl, author, license } or null if not found.
+ */
+async function fetchImageMetadata(filename) {
+	// Try Commons first, then fall back to English Wikipedia
+	for (const apiBase of [COMMONS_API, ENWIKI_API]) {
+		const url = new URL(apiBase);
+		url.searchParams.set('action', 'query');
+		url.searchParams.set('titles', `File:${filename}`);
+		url.searchParams.set('prop', 'imageinfo');
+		url.searchParams.set('iiprop', 'url|extmetadata');
+		url.searchParams.set('iiextmetadatafilter', 'Artist|LicenseShortName|Credit');
+		url.searchParams.set('format', 'json');
+		url.searchParams.set('formatversion', '2');
+
+		const res = await fetch(url.toString(), {
+			headers: {
+				'User-Agent': 'TotOrNot/1.0 (potato dish scraper; contact@example.com)'
+			}
+		});
+
+		if (!res.ok) continue;
+		const data = await res.json();
+
+		const pages = data?.query?.pages;
+		if (!pages || pages.length === 0) continue;
+
+		const page = pages[0];
+		if (page.missing) continue;
+
+		const imageinfo = page.imageinfo?.[0];
+		if (!imageinfo) continue;
+
+		const imageUrl = imageinfo.url;
+		const extmeta = imageinfo.extmetadata || {};
+
+		const artistRaw = extmeta.Artist?.value || '';
+		const author = stripHtml(artistRaw).trim() || 'Unknown';
+		const license = extmeta.LicenseShortName?.value?.trim() || 'Unknown';
+
+		return { imageUrl, author, license };
+	}
+
+	return null;
+}
+
+/**
+ * Format image credits in the project's standard format.
+ */
+function formatImageCredits(author, license) {
+	const lc = license.toLowerCase();
+	if (lc === 'public domain' || lc === 'pd' || lc.startsWith('pd-')) {
+		return 'Public Domain';
+	}
+	return `Photo by ${author} via Wikimedia Commons, ${license}`;
+}
+
+async function main() {
+	const wikitext = await fetchWikitext();
+
+	console.log('Parsing wikitext table...');
+	const rows = parseWikitextTable(wikitext);
+	console.log(`Found ${rows.length} dishes with images.`);
+
+	const results = [];
+	let i = 0;
+
+	for (const row of rows) {
+		i++;
+		process.stdout.write(`[${i}/${rows.length}] Fetching metadata for: ${row.name}...`);
+
+		let imageUrl = null;
+		let imageCredits = null;
+
+		const meta = await fetchImageMetadata(row.imageFilename);
+
+		if (meta) {
+			imageUrl = meta.imageUrl;
+			imageCredits = formatImageCredits(meta.author, meta.license);
+			process.stdout.write(` ${meta.license}\n`);
+		} else {
+			process.stdout.write(` (no metadata found)\n`);
+		}
+
+		results.push({
+			name: row.name,
+			description: row.description,
+			image_url: imageUrl,
+			image_credits: imageCredits,
+			slug: kebabCase(row.name)
+		});
+
+		if (i < rows.length) {
+			await sleep(REQUEST_DELAY_MS);
+		}
+	}
+
+	mkdirSync(join(ROOT, 'data'), { recursive: true });
+	writeFileSync(OUTPUT_PATH, JSON.stringify(results, null, 2) + '\n', 'utf-8');
+
+	console.log(`\nDone! Written ${results.length} dishes to: data/potato-dishes-scrape.json`);
+	console.log('\nNext steps:');
+	console.log('  1. Review and edit data/potato-dishes-scrape.json');
+	console.log('     - Adjust slugs as needed');
+	console.log("     - Remove dishes you don't want");
+	console.log('     - Fix any description or credits issues');
+	console.log('  2. Run: bin/download-spuds');
+}
+
+main().catch((err) => {
+	console.error('Error:', err.message);
+	process.exit(1);
+});
