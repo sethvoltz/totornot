@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/sethvoltz/totornot/compare/totornot-v1.5.0...totornot-v1.6.0) (2026-04-04)
+
+
+### Features
+
+* 73 new spuds ([#39](https://github.com/sethvoltz/totornot/issues/39)) ([fadec66](https://github.com/sethvoltz/totornot/commit/fadec66e96b69b37c97fa93854df466c1e80eb94))
+
 ## [1.5.0](https://github.com/sethvoltz/totornot/compare/totornot-v1.4.0...totornot-v1.5.0) (2026-04-02)
 
 
