@@ -1,6 +1,7 @@
 <script lang="ts">
 	import * as m from '$lib/paraglide/messages';
 	import { localizeHref } from '$lib/paraglide/runtime';
+	import posthog from 'posthog-js';
 
 	let dishName = $state('');
 	let description = $state('');
@@ -38,10 +39,17 @@
 			const result = (await response.json()) as { success?: boolean; error?: string };
 
 			if (response.ok && result.success) {
+				posthog.capture('dish_suggestion_submitted', {
+					dish_name: dishName,
+					has_submitter_name: !!submitterName
+				});
 				success = true;
 				resetForm();
 			} else {
 				if (response.status === 429) {
+					posthog.capture('dish_suggestion_rate_limited', {
+						dish_name: dishName
+					});
 					error = m.tip_error_rate_limited();
 				} else {
 					error = result.error || m.tip_error_generic();

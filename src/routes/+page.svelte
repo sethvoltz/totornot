@@ -5,6 +5,7 @@
 	import { resolveImageUrl } from '$lib/utils/image';
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
+	import posthog from 'posthog-js';
 
 	let dishes = $state<Dish[]>([]);
 	let initialLoading = $state(true);
@@ -82,6 +83,10 @@
 
 		// Handle rate limiting
 		if (voteResponse.status === 429) {
+			posthog.capture('vote_rate_limited', {
+				winner_dish_id: selectedWinnerId,
+				loser_dish_id: selectedLoserId
+			});
 			busy = false;
 			winnerId = '';
 			loserId = '';
@@ -92,6 +97,13 @@
 			rateLimitError = m.vote_error_rate_limited();
 			return;
 		}
+
+		posthog.capture('vote_cast', {
+			winner_dish_id: selectedWinnerId,
+			loser_dish_id: selectedLoserId,
+			winner_dish_name: dishes.find((d) => d.id === selectedWinnerId)?.name,
+			loser_dish_name: dishes.find((d) => d.id === selectedLoserId)?.name
+		});
 
 		// Wait for slide animation (CSS transition: 500ms)
 		await delay(500);

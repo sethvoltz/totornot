@@ -18,7 +18,11 @@ const config = {
 			platformProxy: {
 				persist: true
 			}
-		})
+		}),
+		// Required for PostHog session replay to work correctly with SSR
+		paths: {
+			relative: false
+		}
 	}
 };
 
