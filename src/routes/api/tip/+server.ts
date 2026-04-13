@@ -2,28 +2,13 @@ import { getDb } from '$lib/server/db';
 import { dishSubmissions } from '$lib/server/db/schema';
 import { hashIp } from '$lib/server/crypto';
 import { checkRateLimit } from '$lib/server/rateLimiter';
+import { captureServerEvent } from '$lib/server/posthog';
+import { validateCsrf } from '$lib/server/csrf';
 import type { RequestHandler } from './$types';
 
 const MAX_DISH_NAME_LENGTH = 150;
 const MAX_DESCRIPTION_LENGTH = 1000;
 const MAX_SUBMITTER_NAME_LENGTH = 100;
-
-function validateCsrf(request: Request): boolean {
-	const origin = request.headers.get('Origin');
-	const referer = request.headers.get('Referer');
-
-	const allowedOrigins = ['https://totornot.com', 'https://staging.totornot.com'];
-
-	if (origin && allowedOrigins.some((o) => origin.startsWith(o))) {
-		return true;
-	}
-
-	if (referer && allowedOrigins.some((o) => referer.startsWith(o))) {
-		return true;
-	}
-
-	return false;
-}
 
 export const POST: RequestHandler = async ({ request, platform }) => {
 	try {
@@ -118,6 +103,15 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 			description: description.trim(),
 			submitterName: submitterName?.trim() || null,
 			submitterIpHash: ipHash
+		});
+
+		captureServerEvent({
+			distinctId: ipHash,
+			event: 'dish_suggestion_completed',
+			properties: {
+				dish_name: dishName.trim(),
+				has_submitter_name: !!submitterName?.trim()
+			}
 		});
 
 		return new Response(JSON.stringify({ success: true }), {

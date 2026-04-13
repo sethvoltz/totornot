@@ -4,24 +4,9 @@ import { processVote } from '$lib/elo';
 import { eq, sql } from 'drizzle-orm';
 import { hashIp } from '$lib/server/crypto';
 import { checkRateLimit } from '$lib/server/rateLimiter';
+import { captureServerEvent } from '$lib/server/posthog';
+import { validateCsrf } from '$lib/server/csrf';
 import type { RequestHandler } from './$types';
-
-function validateCsrf(request: Request): boolean {
-	const origin = request.headers.get('Origin');
-	const referer = request.headers.get('Referer');
-
-	const allowedOrigins = ['https://totornot.com', 'https://staging.totornot.com'];
-
-	if (origin && allowedOrigins.some((o) => origin.startsWith(o))) {
-		return true;
-	}
-
-	if (referer && allowedOrigins.some((o) => referer.startsWith(o))) {
-		return true;
-	}
-
-	return false;
-}
 
 export const POST: RequestHandler = async ({ request, platform }) => {
 	try {
@@ -112,6 +97,19 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 			.update(dishes)
 			.set({ elo: sql`elo + ${loserDelta}` })
 			.where(eq(dishes.id, loserId));
+
+		captureServerEvent({
+			distinctId: ipHash ?? 'anonymous',
+			event: 'vote_completed',
+			properties: {
+				winner_dish_id: winnerId,
+				winner_dish_name: winnerDish.name,
+				loser_dish_id: loserId,
+				loser_dish_name: loserDish.name,
+				winner_elo_delta: winnerDelta,
+				loser_elo_delta: loserDelta
+			}
+		});
 
 		return new Response(
 			JSON.stringify({

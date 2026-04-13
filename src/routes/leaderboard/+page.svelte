@@ -2,11 +2,20 @@
 	import type { PageData } from './$types';
 	import * as m from '$lib/paraglide/messages';
 	import { resolveImageUrl } from '$lib/utils/image';
+	import posthog from 'posthog-js';
+	import { onMount } from 'svelte';
 
 	let { data }: { data: PageData } = $props();
 
 	const top3 = $derived(data.dishes.slice(0, 3));
 	const rest = $derived(data.dishes.slice(3, 10));
+
+	onMount(() => {
+		posthog.capture('leaderboard_viewed', {
+			top_dish: top3[0]?.name,
+			total_dishes_shown: top3.length + rest.length
+		});
+	});
 </script>
 
 <svelte:head>
