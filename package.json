@@ -57,7 +57,7 @@
 		"@vitest/coverage-v8": "^4.1.0",
 		"chrome-launcher": "^1.2.1",
 		"drizzle-kit": "^0.31.8",
-		"drizzle-orm": "^0.45.1",
+		"drizzle-orm": "^0.45.2",
 		"eslint": "^10.0.3",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-storybook": "^10.3.3",
