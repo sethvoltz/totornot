@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/sethvoltz/totornot/compare/totornot-v1.7.0...totornot-v1.8.0) (2026-04-13)
+
+
+### Features
+
+* add PostHog analytics ([#49](https://github.com/sethvoltz/totornot/issues/49)) ([4cfc3b0](https://github.com/sethvoltz/totornot/commit/4cfc3b0488d18c493dd48aad32ff2e79fc3f6ea7))
+
 ## [1.7.0](https://github.com/sethvoltz/totornot/compare/totornot-v1.6.0...totornot-v1.7.0) (2026-04-04)
 
 
