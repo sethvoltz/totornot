@@ -4,7 +4,7 @@ import { processVote } from '$lib/elo';
 import { eq, sql } from 'drizzle-orm';
 import { hashIp } from '$lib/server/crypto';
 import { checkRateLimit } from '$lib/server/rateLimiter';
-import { getPostHogClient } from '$lib/server/posthog';
+import { captureServerEvent } from '$lib/server/posthog';
 import { validateCsrf } from '$lib/server/csrf';
 import type { RequestHandler } from './$types';
 
@@ -98,8 +98,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 			.set({ elo: sql`elo + ${loserDelta}` })
 			.where(eq(dishes.id, loserId));
 
-		const posthog = getPostHogClient();
-		posthog.capture({
+		captureServerEvent({
 			distinctId: ipHash ?? 'anonymous',
 			event: 'vote_completed',
 			properties: {

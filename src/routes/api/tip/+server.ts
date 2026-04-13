@@ -2,7 +2,7 @@ import { getDb } from '$lib/server/db';
 import { dishSubmissions } from '$lib/server/db/schema';
 import { hashIp } from '$lib/server/crypto';
 import { checkRateLimit } from '$lib/server/rateLimiter';
-import { getPostHogClient } from '$lib/server/posthog';
+import { captureServerEvent } from '$lib/server/posthog';
 import { validateCsrf } from '$lib/server/csrf';
 import type { RequestHandler } from './$types';
 
@@ -105,8 +105,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 			submitterIpHash: ipHash
 		});
 
-		const posthog = getPostHogClient();
-		posthog.capture({
+		captureServerEvent({
 			distinctId: ipHash,
 			event: 'dish_suggestion_completed',
 			properties: {

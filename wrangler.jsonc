@@ -26,7 +26,8 @@
 	],
 	"vars": {
 		"VOTE_RATE_LIMIT_PER_HOUR": "100",
-		"TIP_RATE_LIMIT_PER_HOUR": "3"
+		"TIP_RATE_LIMIT_PER_HOUR": "3",
+		"PUBLIC_ENVIRONMENT": "production"
 	},
 	"env": {
 		"staging": {
@@ -48,7 +49,8 @@
 			],
 			"vars": {
 				"VOTE_RATE_LIMIT_PER_HOUR": "15",
-				"TIP_RATE_LIMIT_PER_HOUR": "10"
+				"TIP_RATE_LIMIT_PER_HOUR": "10",
+				"PUBLIC_ENVIRONMENT": "staging"
 			}
 		}
 	}
