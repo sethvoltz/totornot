@@ -45,6 +45,9 @@ jobs:
 
       - name: Build
         run: pnpm build
+        env:
+          PUBLIC_POSTHOG_PROJECT_TOKEN: ${{ secrets.PUBLIC_POSTHOG_PROJECT_TOKEN }}
+          PUBLIC_POSTHOG_HOST: https://us.i.posthog.com
 
       - name: Apply database migrations
         run: pnpm db:migrate:staging
@@ -92,6 +95,9 @@ jobs:
 
       - name: Build
         run: pnpm build
+        env:
+          PUBLIC_POSTHOG_PROJECT_TOKEN: ${{ secrets.PUBLIC_POSTHOG_PROJECT_TOKEN }}
+          PUBLIC_POSTHOG_HOST: https://us.i.posthog.com
 
       - name: Apply database migrations
         run: pnpm db:migrate:production
