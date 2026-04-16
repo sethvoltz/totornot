@@ -16,6 +16,8 @@ export interface RateLimitResult {
 export interface RateLimitEnv {
 	VOTE_RATE_LIMIT_PER_HOUR?: string;
 	TIP_RATE_LIMIT_PER_HOUR?: string;
+	SPUD_MATCH_RATE_LIMIT_PER_HOUR?: string;
+	CRITERIA_VOTE_RATE_LIMIT_PER_HOUR?: string;
 }
 
 const DEFAULT_MAX_REQUESTS = 1000;
@@ -24,10 +26,17 @@ const WINDOW_MS = 60 * 60 * 1000; // 1 hour in ms
 type DbClient = DrizzleD1Database<typeof schema>;
 
 export function getConfig(action: string, env?: RateLimitEnv): RateLimitConfig {
-	const maxRequests =
-		action === 'tip'
-			? parseInt(env?.TIP_RATE_LIMIT_PER_HOUR || '', 10) || DEFAULT_MAX_REQUESTS
-			: parseInt(env?.VOTE_RATE_LIMIT_PER_HOUR || '', 10) || DEFAULT_MAX_REQUESTS;
+	let maxRequests: number;
+
+	if (action === 'tip') {
+		maxRequests = parseInt(env?.TIP_RATE_LIMIT_PER_HOUR || '', 10) || DEFAULT_MAX_REQUESTS;
+	} else if (action === 'spud_match') {
+		maxRequests = parseInt(env?.SPUD_MATCH_RATE_LIMIT_PER_HOUR || '', 10) || 10;
+	} else if (action === 'criteria_vote') {
+		maxRequests = parseInt(env?.CRITERIA_VOTE_RATE_LIMIT_PER_HOUR || '', 10) || 50;
+	} else {
+		maxRequests = parseInt(env?.VOTE_RATE_LIMIT_PER_HOUR || '', 10) || DEFAULT_MAX_REQUESTS;
+	}
 
 	return { maxRequests, windowMs: WINDOW_MS };
 }

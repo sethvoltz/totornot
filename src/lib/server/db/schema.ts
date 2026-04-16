@@ -54,3 +54,19 @@ export const dishSubmissions = sqliteTable('dish_submissions', {
 		.notNull()
 		.$defaultFn(() => new Date())
 });
+
+export const dishCriteriaVotes = sqliteTable('dish_criteria_votes', {
+	id: text('id')
+		.primaryKey()
+		.$defaultFn(() => crypto.randomUUID()),
+	dishId: text('dish_id')
+		.notNull()
+		.references(() => dishes.id),
+	criterionId: text('criterion_id').notNull(),
+	score: real('score').notNull(),
+	voterId: text('voter_id'),
+	ipHash: text('ip_hash'),
+	createdAt: integer('created_at', { mode: 'timestamp' })
+		.notNull()
+		.$defaultFn(() => new Date())
+});

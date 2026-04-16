@@ -25,5 +25,16 @@
 	"tip_error_generic": "Something went wrong. Please try again.",
 	"tip_error_rate_limited": "Too many submissions. Please try again later.",
 	"suggest_a_dish": "Suggest a Dish",
-	"vote_error_rate_limited": "Whoa there, hot potato! You've been voting a lot. Let the steam cool off and try again in a bit."
+	"vote_error_rate_limited": "Whoa there, hot potato! You've been voting a lot. Let the steam cool off and try again in a bit.",
+	"my_spud_title": "What's Your Ideal Spud?",
+	"my_spud_subtitle": "Slide to set your perfect potato preferences",
+	"my_spud_find_button": "Find My Spud",
+	"my_spud_finding": "Finding your perfect potato...",
+	"my_spud_result_label": "Your perfect potato match!",
+	"my_spud_dont_care": "Don't care",
+	"my_spud_help_title": "How does this work?",
+	"my_spud_help_body": "Each slider represents a potato preference. Slide toward the end you prefer. The further you slide, the more it matters to you. Leave a slider in the center if you don't care about that quality. For example: Love crispy snacks? Slide Crispiness toward 'Crunchy'. Prefer comfort food? Slide Richness toward 'Indulgent'.",
+	"my_spud_error_no_prefs": "Slide at least one preference to find your match!",
+	"my_spud_error_generic": "Something went wrong. Please try again.",
+	"find_spud_mate": "Find Your Spud-mate"
 }
