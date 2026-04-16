@@ -4,6 +4,7 @@
 	import CriterionSlider from '$lib/components/CriterionSlider.svelte';
 	import { resolveImageUrl } from '$lib/utils/image';
 	import * as m from '$lib/paraglide/messages';
+	import posthog from 'posthog-js';
 
 	interface SpudMatch {
 		dishId: string;
@@ -69,6 +70,9 @@
 					imageVisible = true;
 				}, 500);
 			} else {
+				if (response.status === 429) {
+					posthog.capture('spud_match_rate_limited');
+				}
 				error = result.error || m.my_spud_error_generic();
 				loading = false;
 			}

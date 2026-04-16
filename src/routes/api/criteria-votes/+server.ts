@@ -3,6 +3,7 @@ import { dishes, dishCriteriaVotes } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { hashIp } from '$lib/server/crypto';
 import { checkRateLimit } from '$lib/server/rateLimiter';
+import { captureServerEvent } from '$lib/server/posthog';
 import { validateCsrf } from '$lib/server/csrf';
 import { CRITERIA_IDS } from '$lib/criteria';
 import type { RequestHandler } from './$types';
@@ -96,6 +97,16 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 		}));
 
 		await db.insert(dishCriteriaVotes).values(voteRows);
+
+		captureServerEvent({
+			distinctId: ipHash ?? 'anonymous',
+			event: 'criteria_vote_completed',
+			properties: {
+				dish_id: dishId,
+				dish_name: dishResult[0].name,
+				votes
+			}
+		});
 
 		return new Response(JSON.stringify({ success: true }), {
 			status: 200,

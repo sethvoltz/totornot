@@ -2,6 +2,7 @@
 	import { CRITERIA } from '$lib/criteria';
 	import CriterionSlider from '$lib/components/CriterionSlider.svelte';
 	import { resolveImageUrl } from '$lib/utils/image';
+	import posthog from 'posthog-js';
 
 	interface Props {
 		data: {
@@ -14,6 +15,7 @@
 			} | null;
 			currentAverages: Record<string, { avgScore: number; voteCount: number }>;
 			progress: { rated: number; total: number };
+			nav: { prevId: string | null; nextId: string | null; index: number; total: number };
 		};
 	}
 
@@ -46,11 +48,25 @@
 			});
 
 			if (response.ok) {
+				posthog.capture('criteria_vote_submitted', {
+					dish_id: dish.id,
+					dish_name: dish.name
+				});
 				message = { type: 'success', text: 'Votes submitted! Loading next dish...' };
 				await new Promise((r) => setTimeout(r, 500));
-				window.location.reload();
+				if (data.nav.nextId) {
+					window.location.href = `/rate-dishes?id=${data.nav.nextId}`;
+				} else {
+					window.location.href = '/rate-dishes';
+				}
 			} else {
 				const result = (await response.json()) as { error?: string };
+				if (response.status === 429) {
+					posthog.capture('criteria_vote_rate_limited', {
+						dish_id: dish.id,
+						dish_name: dish.name
+					});
+				}
 				message = { type: 'error', text: result.error || 'Failed to submit votes' };
 			}
 		} catch {
@@ -71,12 +87,34 @@
 			Rate Dishes — Criteria Matrix Builder
 		</h1>
 		<p class="mt-2" style="color: var(--text-secondary);">
-			Progress: {data.progress.rated} of {data.progress.total} dishes have votes
+			{data.progress.rated} of {data.progress.total} dishes have votes &nbsp;·&nbsp;
+			<a href="/rate-dishes" style="color: var(--accent-primary);">Jump to next unrated</a>
 		</p>
 	</div>
 
 	{#if dish}
 		<div class="diner-card mb-8 p-6" style="background-color: var(--bg-secondary);">
+			<div class="mb-4 flex items-center justify-between text-sm" style="color: var(--text-muted);">
+				<a
+					href={data.nav.prevId ? `/rate-dishes?id=${data.nav.prevId}` : undefined}
+					class="flex items-center gap-1 rounded px-2 py-1 transition-opacity"
+					class:opacity-30={!data.nav.prevId}
+					class:pointer-events-none={!data.nav.prevId}
+					style="color: var(--text-secondary);"
+				>
+					← Prev
+				</a>
+				<span>{data.nav.index} / {data.nav.total}</span>
+				<a
+					href={data.nav.nextId ? `/rate-dishes?id=${data.nav.nextId}` : undefined}
+					class="flex items-center gap-1 rounded px-2 py-1 transition-opacity"
+					class:opacity-30={!data.nav.nextId}
+					class:pointer-events-none={!data.nav.nextId}
+					style="color: var(--text-secondary);"
+				>
+					Next →
+				</a>
+			</div>
 			<div class="flex flex-col gap-6 md:flex-row">
 				<div class="shrink-0">
 					{#if dish.imagePath}
