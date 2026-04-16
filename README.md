@@ -1,28 +1,39 @@
 # Tot or Not
 
-A side-by-side rating app powered by Elo ratings. Two items enter, one item leaves. Vote for your favorite, watch the global rankings shift.
+A side-by-side potato dish ranking app running at [totornot.com](https://totornot.com). Two dishes enter, one dish leaves. Vote for your favorite and watch the global Elo rankings shift — or dial in your personal texture and flavor preferences to find your perfect spud match.
 
 - **No accounts** — just vote
 - **Elo ranking** — zero-sum, globally consistent scores
-- **Anti-spam** — Cloudflare Turnstile (invisible) + IP-based rate limiting
-- **Free to run** — Cloudflare free tier (Workers + D1 + Turnstile)
+- **Spud Match** — TOPSIS-based preference matching across 8 flavor/texture criteria
+- **Anti-spam** — hashed IP rate limiting (lazy token bucket)
+- **Free to run** — Cloudflare free tier (Workers + D1)
 
 ---
 
-## Prerequisites
+## Tech Stack
 
-- [Node.js](https://nodejs.org/) 20+
-- [pnpm](https://pnpm.io/) — `npm install -g pnpm`
-- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/)
-  - Via Homebrew: `brew install cloudflared`
-  - Or via npm: `pnpm add -g wrangler`
-- A Cloudflare account (free) — [dash.cloudflare.com](https://dash.cloudflare.com/)
-
-> **Note:** Local D1 runs within Wrangler's local dev environment - no separate database services needed!
+| Layer      | Technology                                                                                                   |
+| ---------- | ------------------------------------------------------------------------------------------------------------ |
+| Framework  | [SvelteKit 5](https://svelte.dev/) with Svelte runes                                                         |
+| Styling    | [Tailwind CSS v4](https://tailwindcss.com/)                                                                  |
+| Runtime    | [Cloudflare Workers](https://workers.cloudflare.com/)                                                        |
+| Database   | [Cloudflare D1](https://developers.cloudflare.com/d1/) (SQLite) via [Drizzle ORM](https://orm.drizzle.team/) |
+| Analytics  | [PostHog](https://posthog.com/)                                                                              |
+| Ranking    | [Elo rating system](https://en.wikipedia.org/wiki/Elo_rating_system) (K=32)                                  |
+| Matching   | [TOPSIS](https://en.wikipedia.org/wiki/TOPSIS) multi-criteria decision analysis                              |
+| i18n       | [Paraglide JS](https://inlang.com/m/gerre34r/library-inlang-paraglideJs)                                     |
+| Components | [Storybook](https://storybook.js.org/)                                                                       |
 
 ---
 
 ## Local Development
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) 22+ (see `.node-version`)
+- [pnpm](https://pnpm.io/) — `npm install -g pnpm`
+- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/) — `pnpm add -g wrangler`
+- A Cloudflare account (free) — [dash.cloudflare.com](https://dash.cloudflare.com/)
 
 ### 1. Install dependencies
 
@@ -32,168 +43,62 @@ pnpm install
 
 ### 2. Set up your local environment
 
-Two env files are needed - copy both examples:
-
 ```sh
-# For drizzle-kit (database migrations)
 cp .env.example .env
-
-# For Wrangler local dev (Turnstile keys)
-cp .dev.vars.example .dev.vars
 ```
 
-Fill in your Cloudflare D1 credentials in `.env`:
+Fill in your Cloudflare credentials in `.env` (used by drizzle-kit for migrations):
 
 ```ini
-# .env
 CLOUDFLARE_ACCOUNT_ID="your_account_id"
 CLOUDFLARE_DATABASE_ID="your_database_id"
 CLOUDFLARE_D1_TOKEN="your_token"
 ```
 
-The `.dev.vars` file already contains Turnstile **always-pass test keys** for development:
-
-```ini
-# .dev.vars
-PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000AA
-TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
-```
-
-> These test keys are provided by Cloudflare for development and always succeed verification.
-> See [Cloudflare Turnstile testing docs](https://developers.cloudflare.com/turnstile/reference/testing/).
+To get these: log into [dash.cloudflare.com](https://dash.cloudflare.com/), create a D1 database, and generate an API token with D1 write permissions.
 
 ### 3. Generate TypeScript types
 
 ```sh
-pnpm run gen
+pnpm gen
 ```
 
-This generates TypeScript types from your wrangler configuration.
+This generates types from your Wrangler config and compiles Paraglide message files.
 
-### 4. Create the D1 database (first time only)
+### 4. Apply migrations locally
 
 ```sh
-# Create the database in Cloudflare
-wrangler d1 create totornot
-
-# Copy the database_id from the output into wrangler.jsonc
+pnpm dlx wrangler d1 migrations apply totornot --local
 ```
 
-### 5. Run migrations (local)
+This sets up all tables and seeds the initial dish data. Migrations live in `drizzle/migrations/` and are tracked in the `d1_migrations` table.
 
-```sh
-# Apply all pending migrations to local D1
-wrangler d1 migrations apply totornot --local
-
-# View migration status
-wrangler d1 migrations list totornot --local
-```
-
-> Migrations are stored in `drizzle/migrations/` and tracked in the `d1_migrations` table.
-
-### 6. Start the dev server
+### 5. Start the dev server
 
 ```sh
 pnpm dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173).
+Open [http://localhost:5173](http://localhost:5173). Cloudflare bindings (D1, etc.) are emulated via `getPlatformProxy`. The local D1 state is stored in `.wrangler/state/`.
 
-This runs Vite dev mode with Cloudflare bindings emulated via `getPlatformProxy`. Your local D1 database (stored in `.wrangler/state/`) is shared with wrangler commands.
-
-> **Note:** For testing the production build, use `pnpm build && pnpm preview` which runs the full Cloudflare Workers runtime.
+> For testing the production build: `pnpm preview` — this runs the full Cloudflare Workers runtime locally.
 
 ---
 
-## Adding New Potato Dishes
-
-Use the helper script to add new dishes:
-
-```bash
-# Create new migration
-bin/add-dish "Dish Name" "Description here"
-
-# Add multiple dishes to same migration
-bin/add-dish "First Dish" "Description"
-bin/add-dish "Second Dish" "Another description" --append
-
-# Apply the migration
-wrangler d1 migrations apply totornot --local   # or --remote
-```
-
-This creates numbered migration files in `drizzle/migrations/` that are tracked in the `d1_migrations` table and applied once.
-
-**Flags:**
-
-- `--append` / `-a` - Append to most recent migration instead of creating new one
-- `--help` / `-h` - Show usage information
-
-> **Note:** Currently the app uses placeholder images from picsum.photos. To use custom images, modify the `getPlaceholderImage` function in `src/routes/+page.svelte`.
-
----
-
-## Deployment
-
-### First-time setup
-
-**1. Log in to Cloudflare**
+## Running Tests
 
 ```sh
-wrangler login
-```
+# Unit tests
+pnpm test:unit
 
-**2. Create the D1 database**
+# E2E tests (requires local D1 to be set up)
+pnpm test:e2e
 
-```sh
-wrangler d1 create totornot
-```
+# Storybook component tests
+pnpm test:storybook
 
-Copy the `database_id` from the output and paste it into `wrangler.jsonc`:
-
-```jsonc
-"d1_databases": [
-  {
-    "binding": "DB",
-    "database_name": "totornot",
-    "database_id": "YOUR_DATABASE_ID_HERE",  // ← paste here
-    "migrations_dir": "drizzle/migrations"
-  }
-]
-```
-
-**3. Run migrations against production D1**
-
-```sh
-# View pending migrations
-wrangler d1 migrations list totornot --remote
-
-# Apply all pending migrations
-wrangler d1 migrations apply totornot --remote
-```
-
-> Wrangler tracks applied migrations in the `d1_migrations` table, so you can safely run this multiple times - already-applied migrations are skipped.
-> Initial seed data (30 potato dishes) is included in the first migration.
-
-**4. Set production secrets**
-
-```sh
-# IP hashing secret (generate with: openssl rand -base64 32)
-wrangler secret put IP_HASH_SECRET
-```
-
-**5. Deploy**
-
-```sh
-pnpm build
-wrangler deploy
-```
-
-Your app is live on `https://totornot.<your-subdomain>.workers.dev`.
-
-### Subsequent deploys
-
-```sh
-pnpm build && wrangler deploy
+# All tests
+pnpm test
 ```
 
 ---
@@ -203,49 +108,107 @@ pnpm build && wrangler deploy
 ```
 src/
   lib/
-    elo.ts              # Elo calculation engine
-    components/
-      DishCard.svelte   # Individual dish card (image, name, Elo badge)
-    server/db/
-      schema.ts         # Drizzle schema (dishes, votes, rate_limits)
-      index.ts          # DB connection helper
-
+    criteria.ts           # 8 TOPSIS criteria definitions (crispiness, richness, etc.)
+    elo.ts                # Elo calculation engine
+    components/           # Shared Svelte components
+    server/
+      db/
+        schema.ts         # Drizzle schema (dishes, votes, rate_limits, etc.)
+        index.ts          # DB connection helper
+      rateLimiter.ts      # Lazy token bucket rate limiter
+      topsis.ts           # TOPSIS matching algorithm
+      csrf.ts             # CSRF protection
+      posthog.ts          # Server-side PostHog client
   routes/
-    +layout.svelte      # App shell with nav
-    +page.svelte        # Matchup voting page
-    +page.server.ts     # Server-side load for random matchup
-    leaderboard/
-      +page.svelte      # Elo leaderboard
-      +page.server.ts   # Server-side data load
+    +page.svelte          # Voting matchup page (home)
+    leaderboard/          # Elo leaderboard
+    match/                # "My Spud Match" — TOPSIS preference finder
+    about/                # About the project
+    tip/                  # Dish suggestion tip line
     api/
-      vote/
-        +server.ts      # POST /api/vote
+      vote/               # POST /api/vote
+      dishes/random/      # GET /api/dishes/random
+      spud-match/         # POST /api/spud-match (TOPSIS)
+      criteria-votes/     # POST /api/criteria-votes
+      tip/                # POST /api/tip
+    (internal)/
+      rate-dishes/        # Internal criteria rating tool
 drizzle/
-  migrations/           # Wrangler-managed SQL migrations
-    0000_initial.sql  # Initial schema
-wrangler.jsonc          # Cloudflare Workers config
+  migrations/             # Wrangler-managed SQL migrations
+wrangler.jsonc            # Cloudflare Workers config
 ```
-
-## Database Workflow
-
-### Adding Schema Changes
-
-1. **Modify schema** - Edit `src/lib/server/db/schema.ts`
-2. **Generate migration** - Run `wrangler d1 migrations create totornot "add_description"`
-3. **Write migration SQL** - Edit the generated file in `drizzle/migrations/`
-4. **Apply locally** - Run `wrangler d1 migrations apply totornot --local`
-5. **Test** - Run the dev server and verify
-6. **Deploy** - Run `wrangler d1 migrations apply totornot --remote`
 
 ---
 
-## Tech Stack
+## Adding Dishes
 
-| Layer     | Technology                                                                                                   |
-| --------- | ------------------------------------------------------------------------------------------------------------ |
-| Framework | [SvelteKit 5](https://svelte.dev/) (Svelte runes)                                                            |
-| Styling   | [Tailwind CSS v4](https://tailwindcss.com/)                                                                  |
-| Runtime   | [Cloudflare Workers](https://workers.cloudflare.com/)                                                        |
-| Database  | [Cloudflare D1](https://developers.cloudflare.com/d1/) (SQLite) via [Drizzle ORM](https://orm.drizzle.team/) |
-| Anti-spam | [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/)                                         |
-| Ranking   | [Elo rating system](https://en.wikipedia.org/wiki/Elo_rating_system) (K=32)                                  |
+Use the helper script to generate migration files:
+
+```sh
+# Create a new migration with one dish
+bin/add-dish "Dish Name" "Description here"
+
+# Append to the most recent migration instead of creating a new file
+bin/add-dish "Another Dish" "Description" --append
+
+# Apply the migration locally
+pnpm dlx wrangler d1 migrations apply totornot --local
+```
+
+**Flags:** `--append` / `-a`, `--help` / `-h`
+
+---
+
+## Schema Changes
+
+1. Edit `src/lib/server/db/schema.ts`
+2. Generate migration: `pnpm dlx wrangler d1 migrations create totornot "describe_the_change"`
+3. Write the SQL in the generated file under `drizzle/migrations/`
+4. Apply locally: `pnpm dlx wrangler d1 migrations apply totornot --local`
+5. Test, then apply remotely after deploy
+
+---
+
+## Self-Hosting
+
+### First-time Cloudflare setup
+
+```sh
+# Log in
+wrangler login
+
+# Create the D1 database
+wrangler d1 create totornot
+
+# Paste the returned database_id into wrangler.jsonc, then run migrations
+wrangler d1 migrations apply totornot --remote
+
+# Set the IP hashing secret (generate with: openssl rand -base64 32)
+wrangler secret put IP_HASH_SECRET
+```
+
+### Deploy
+
+```sh
+pnpm build && wrangler deploy
+```
+
+### Environment variables
+
+| Variable                       | Where                 | Description                                                |
+| ------------------------------ | --------------------- | ---------------------------------------------------------- |
+| `IP_HASH_SECRET`               | Wrangler secret       | HMAC key for hashing IPs — rate limiting disabled if unset |
+| `PUBLIC_POSTHOG_PROJECT_TOKEN` | `wrangler.jsonc` vars | PostHog project token — analytics disabled if unset        |
+| `PUBLIC_POSTHOG_HOST`          | `wrangler.jsonc` vars | PostHog ingest host                                        |
+| `VOTE_RATE_LIMIT_PER_HOUR`     | `wrangler.jsonc` vars | Vote rate limit (default: 1000)                            |
+| `TIP_RATE_LIMIT_PER_HOUR`      | `wrangler.jsonc` vars | Tip submission rate limit (default: 1000)                  |
+
+---
+
+## Contributing
+
+Pull requests are welcome. For significant changes, open an issue first.
+
+- Code style is enforced via Prettier and ESLint — run `pnpm lint` before pushing
+- Commits follow [Conventional Commits](https://www.conventionalcommits.org/)
+- Releases are managed by [Release Please](https://github.com/googleapis/release-please)

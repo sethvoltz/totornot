@@ -16,7 +16,6 @@ export interface MatchupResponse {
 export interface VoteRequest {
 	winnerId: string;
 	loserId: string;
-	turnstileToken: string;
 }
 
 export interface VoteResponse {
