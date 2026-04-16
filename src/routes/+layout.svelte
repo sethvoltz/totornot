@@ -79,6 +79,12 @@
 			</a>
 			<div class="flex items-center gap-3">
 				<a
+					href={localizeHref('/match')}
+					class="diner-btn px-5 py-2.5 text-sm font-semibold text-white"
+				>
+					💘 {m.find_spud_mate()}
+				</a>
+				<a
 					href={localizeHref('/leaderboard')}
 					class="diner-btn px-5 py-2.5 text-sm font-semibold text-white"
 				>
