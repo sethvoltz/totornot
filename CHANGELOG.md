@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.0](https://github.com/sethvoltz/totornot/compare/totornot-v1.10.0...totornot-v1.11.0) (2026-04-16)
+
+
+### Features
+
+* add auto-merge workflow for release PRs ([#67](https://github.com/sethvoltz/totornot/issues/67)) ([3200b9a](https://github.com/sethvoltz/totornot/commit/3200b9a84d9673fe1c95920af7eed3e481c3795f))
+
 ## [1.10.0](https://github.com/sethvoltz/totornot/compare/totornot-v1.9.0...totornot-v1.10.0) (2026-04-16)
 
 
