@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.0](https://github.com/sethvoltz/totornot/compare/totornot-v1.9.0...totornot-v1.10.0) (2026-04-16)
+
+
+### Features
+
+* add about page with voting system documentation ([#65](https://github.com/sethvoltz/totornot/issues/65)) ([dbdfd54](https://github.com/sethvoltz/totornot/commit/dbdfd544f60c435143c4ea88f07f899939dace49))
+
 ## [1.9.0](https://github.com/sethvoltz/totornot/compare/totornot-v1.8.0...totornot-v1.9.0) (2026-04-16)
 
 
