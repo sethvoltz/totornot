@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.0](https://github.com/sethvoltz/totornot/compare/totornot-v1.8.0...totornot-v1.9.0) (2026-04-16)
+
+
+### Features
+
+* TOPSIS-based spud matching feature ([#60](https://github.com/sethvoltz/totornot/issues/60)) ([1b29f0e](https://github.com/sethvoltz/totornot/commit/1b29f0ea72e1672ffae2532ee2e48f81715abb32))
+
 ## [1.8.0](https://github.com/sethvoltz/totornot/compare/totornot-v1.7.0...totornot-v1.8.0) (2026-04-13)
 
 
