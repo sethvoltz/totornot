@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.0](https://github.com/sethvoltz/totornot/compare/totornot-v1.11.0...totornot-v1.12.0) (2026-04-16)
+
+
+### Features
+
+* upgrade vite-plugin-svelte and tailwindcss for vite 8 compat ([#71](https://github.com/sethvoltz/totornot/issues/71)) ([134910f](https://github.com/sethvoltz/totornot/commit/134910fd0db5a26eea4441adffe19086c4f02eac))
+
 ## [1.11.0](https://github.com/sethvoltz/totornot/compare/totornot-v1.10.0...totornot-v1.11.0) (2026-04-16)
 
 
