@@ -12,5 +12,5 @@
 		"moduleResolution": "bundler",
 		"types": ["./worker-configuration.d.ts"]
 	},
-	"exclude": [".svelte-kit/output"]
+	"exclude": [".svelte-kit/output", "src/**/*.stories.svelte"]
 }
