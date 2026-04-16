@@ -140,6 +140,14 @@
 			<a href={localizeHref('/tip')} class="hover:underline" style="color: var(--accent-primary);">
 				{m.suggest_a_dish()}
 			</a>
+			<span class="mx-2">•</span>
+			<a
+				href={localizeHref('/about')}
+				class="hover:underline"
+				style="color: var(--accent-primary);"
+			>
+				About
+			</a>
 		</p>
 		<p class="mt-1">&copy; 2026 Tot or Not</p>
 	</footer>
