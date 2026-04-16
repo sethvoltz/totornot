@@ -5,8 +5,6 @@ declare global {
 		interface Platform {
 			env: Env & {
 				DB: D1Database;
-				PUBLIC_TURNSTILE_SITE_KEY?: string;
-				TURNSTILE_SECRET_KEY?: string;
 				IP_HASH_SECRET: string;
 				VOTE_RATE_LIMIT_PER_HOUR?: string;
 				TIP_RATE_LIMIT_PER_HOUR?: string;
