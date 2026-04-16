@@ -4,10 +4,9 @@
 	interface Props {
 		criterion: Criterion;
 		value: number;
-		currentAvg?: { avgScore: number; voteCount: number } | null;
 	}
 
-	let { criterion, value = $bindable(), currentAvg = null }: Props = $props();
+	let { criterion, value = $bindable() }: Props = $props();
 
 	function formatScore(v: number): string {
 		if (Math.abs(v) < 0.05) return '0.0';
@@ -76,13 +75,6 @@
 		<span>{criterion.scaleLow}</span>
 		<span>{criterion.scaleHigh}</span>
 	</div>
-	{#if currentAvg}
-		<p class="mt-2 text-xs" style="color: var(--text-muted);">
-			Current avg: {formatScore(currentAvg.avgScore)} from {currentAvg.voteCount} vote(s)
-		</p>
-	{:else if currentAvg !== undefined}
-		<p class="mt-2 text-xs" style="color: var(--text-muted);">No votes yet</p>
-	{/if}
 </div>
 
 <style>

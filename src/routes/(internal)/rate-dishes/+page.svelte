@@ -122,11 +122,7 @@
 		>
 			<div class="space-y-6">
 				{#each CRITERIA as criterion (criterion.id)}
-					<CriterionSlider
-						{criterion}
-						bind:value={sliders[criterion.id]}
-						currentAvg={data.currentAverages[criterion.id] ?? null}
-					/>
+					<CriterionSlider {criterion} bind:value={sliders[criterion.id]} />
 				{/each}
 			</div>
 
