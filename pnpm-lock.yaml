@@ -31,8 +31,8 @@ importers:
         specifier: ^10.0.1
         version: 10.0.1(eslint@10.2.0(jiti@2.6.1))
       '@inlang/paraglide-js':
-        specifier: ^2.10.0
-        version: 2.15.1
+        specifier: ^2.15.3
+        version: 2.15.3
       '@lhci/cli':
         specifier: 0.15.1
         version: 0.15.1
@@ -89,7 +89,7 @@ importers:
         version: 0.31.10
       drizzle-orm:
         specifier: ^0.45.2
-        version: 0.45.2(@opentelemetry/api@1.9.1)(@types/pg@8.6.1)(kysely@0.28.14)
+        version: 0.45.2(@opentelemetry/api@1.9.1)(@types/pg@8.6.1)(kysely@0.28.16)
       eslint:
         specifier: ^10.2.0
         version: 10.2.0(jiti@2.6.1)
@@ -1170,8 +1170,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@inlang/paraglide-js@2.15.1':
-    resolution: {integrity: sha512-7wWKbLWwLx1dkkYz55TnVp+39atKXf7rnlHnL8adSmM73UaAdB9fXDzo24GHSY/6FPGFKSkgHdT2qyJv2whWsA==}
+  '@inlang/paraglide-js@2.15.3':
+    resolution: {integrity: sha512-gneANUhYEPnSjxbKp3QCwmMqQecG+1QWuJSAl3jiPprn2+LeaZu3BgnofRKpo8gkYzB6oE3AY2ecZBXu3UrpOw==}
     hasBin: true
 
   '@inlang/recommend-sherlock@0.2.1':
@@ -3613,8 +3613,8 @@ packages:
   known-css-properties@0.37.0:
     resolution: {integrity: sha512-JCDrsP4Z1Sb9JwG0aJ8Eo2r7k4Ou5MwmThS/6lcIe1ICyb7UBJKGRIUUdqc2ASdE/42lgz6zFUnzAIhtXnBVrQ==}
 
-  kysely@0.28.14:
-    resolution: {integrity: sha512-SU3lgh0rPvq7upc6vvdVrCsSMUG1h3ChvHVOY7wJ2fw4C9QEB7X3d5eyYEyULUX7UQtxZJtZXGuT6U2US72UYA==}
+  kysely@0.28.16:
+    resolution: {integrity: sha512-3i5pmOiZvMDj00qhrIVbH0AnioVTx22DMP7Vn5At4yJO46iy+FM8Y/g61ltenLVSo3fiO8h8Q3QOFgf/gQ72ww==}
     engines: {node: '>=20.0.0'}
 
   legacy-javascript@0.0.1:
@@ -5836,7 +5836,7 @@ snapshots:
   '@img/sharp-win32-x64@0.34.5':
     optional: true
 
-  '@inlang/paraglide-js@2.15.1':
+  '@inlang/paraglide-js@2.15.3':
     dependencies:
       '@inlang/recommend-sherlock': 0.2.1
       '@inlang/sdk': 2.9.1
@@ -5856,8 +5856,8 @@ snapshots:
     dependencies:
       '@lix-js/sdk': 0.4.9
       '@sinclair/typebox': 0.31.28
-      kysely: 0.28.14
-      sqlite-wasm-kysely: 0.3.0(kysely@0.28.14)
+      kysely: 0.28.16
+      sqlite-wasm-kysely: 0.3.0(kysely@0.28.16)
       uuid: 13.0.0
     transitivePeerDependencies:
       - babel-plugin-macros
@@ -5934,8 +5934,8 @@ snapshots:
       dedent: 1.5.1
       human-id: 4.1.3
       js-sha256: 0.11.1
-      kysely: 0.28.14
-      sqlite-wasm-kysely: 0.3.0(kysely@0.28.14)
+      kysely: 0.28.16
+      sqlite-wasm-kysely: 0.3.0(kysely@0.28.16)
       uuid: 10.0.0
     transitivePeerDependencies:
       - babel-plugin-macros
@@ -7678,11 +7678,11 @@ snapshots:
       esbuild: 0.25.12
       tsx: 4.21.0
 
-  drizzle-orm@0.45.2(@opentelemetry/api@1.9.1)(@types/pg@8.6.1)(kysely@0.28.14):
+  drizzle-orm@0.45.2(@opentelemetry/api@1.9.1)(@types/pg@8.6.1)(kysely@0.28.16):
     optionalDependencies:
       '@opentelemetry/api': 1.9.1
       '@types/pg': 8.6.1
-      kysely: 0.28.14
+      kysely: 0.28.16
 
   dunder-proto@1.0.1:
     dependencies:
@@ -8426,7 +8426,7 @@ snapshots:
 
   known-css-properties@0.37.0: {}
 
-  kysely@0.28.14: {}
+  kysely@0.28.16: {}
 
   legacy-javascript@0.0.1: {}
 
@@ -9387,10 +9387,10 @@ snapshots:
 
   sprintf-js@1.0.3: {}
 
-  sqlite-wasm-kysely@0.3.0(kysely@0.28.14):
+  sqlite-wasm-kysely@0.3.0(kysely@0.28.16):
     dependencies:
       '@sqlite.org/sqlite-wasm': 3.48.0-build4
-      kysely: 0.28.14
+      kysely: 0.28.16
 
   stackback@0.0.2: {}
 
