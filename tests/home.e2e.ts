@@ -5,12 +5,12 @@ test.describe('Home Page - Voting Flow', () => {
 		await page.goto('/');
 
 		// Select by visible text from i18n messages
-		await expect(page.getByText("Which Tot's Hot?")).toBeVisible();
-		await expect(page.getByText('Pick your favorite to cast your vote')).toBeVisible();
+		await expect(page.getByText("Tonight's Tasting")).toBeVisible();
+		await expect(page.getByText('Two courses are served. Vote for the better dish.')).toBeVisible();
 
 		// VS badge
 		await expect(page.getByTestId('vs-badge')).toBeVisible();
-		await expect(page.getByText('VS')).toBeVisible();
+		await expect(page.getByTestId('vs-badge')).toHaveText('vs.');
 
 		// Two dish cards should be present
 		const dishCards = page.getByTestId('dish-card');

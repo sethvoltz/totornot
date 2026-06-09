@@ -25,3 +25,6 @@ worker-configuration.d.ts
 
 # Lighthouse
 .lighthouse/
+
+# Playwright MCP scratch output
+.playwright-mcp/

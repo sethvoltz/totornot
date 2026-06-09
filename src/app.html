@@ -5,8 +5,8 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="color-scheme" content="light dark" />
-		<meta name="theme-color" content="#FFF8E7" media="(prefers-color-scheme: light)" />
-		<meta name="theme-color" content="#2D1F14" media="(prefers-color-scheme: dark)" />
+		<meta name="theme-color" content="#5e1219" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#221416" media="(prefers-color-scheme: dark)" />
 		<meta
 			name="description"
 			content="Tot or Not - The definitive ranking of potato-based dishes from around the world."
@@ -31,10 +31,10 @@
 
 		<!-- Inline critical font CSS to prevent FOIT -->
 		<style>
-			/* Critical CSS: System fonts as immediate fallback */
+			/* Critical CSS: system fallbacks until web fonts arrive */
 			:root {
 				--font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-				--font-serif: Georgia, 'Times New Roman', serif;
+				--font-serif: 'Bodoni MT', Didot, 'Didot LT STD', Georgia, serif;
 			}
 
 			* {
@@ -43,14 +43,14 @@
 
 			.font-serif,
 			[class*='font-serif'],
-			[class*='neon-sign'] {
+			[class*='menu-display'] {
 				font-family: var(--font-serif);
 			}
 		</style>
 
 		<!-- Async font loading to prevent render blocking -->
 		<link
-			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,600;1,700;1,800;1,900&display=swap"
+			href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Hanken+Grotesk:ital,wght@0,400..700;1,400..700&display=swap"
 			rel="preload"
 			as="style"
 			onload="
@@ -60,7 +60,7 @@
 		/>
 		<noscript>
 			<link
-				href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,600;1,700;1,800;1,900&display=swap"
+				href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Hanken+Grotesk:ital,wght@0,400..700;1,400..700&display=swap"
 				rel="stylesheet"
 			/>
 		</noscript>

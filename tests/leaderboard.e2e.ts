@@ -11,10 +11,13 @@ test.describe('Leaderboard Page', () => {
 		await expect(page.getByTestId('podium-silver')).toBeVisible();
 		await expect(page.getByTestId('podium-bronze')).toBeVisible();
 
-		// Verify medals are displayed
-		await expect(page.getByText('🥇')).toBeVisible();
-		await expect(page.getByText('🥈')).toBeVisible();
-		await expect(page.getByText('🥉')).toBeVisible();
+		// Verify star tiers are displayed (3 / 2 / 1 stars)
+		await expect(page.getByTestId('stars-3')).toBeVisible();
+		await expect(page.getByTestId('stars-2')).toBeVisible();
+		await expect(page.getByTestId('stars-1')).toBeVisible();
+		await expect(page.getByTestId('stars-3').locator('svg')).toHaveCount(3);
+		await expect(page.getByTestId('stars-2').locator('svg')).toHaveCount(2);
+		await expect(page.getByTestId('stars-1').locator('svg')).toHaveCount(1);
 	});
 
 	test('each podium position has a dish name', async ({ page }) => {
@@ -46,16 +49,16 @@ test.describe('Leaderboard Page', () => {
 	test('displays rankings 4 through 10', async ({ page }) => {
 		// Should see ranks 4, 5, 6, 7, 8, 9, 10
 		for (let i = 4; i <= 10; i++) {
-			await expect(page.getByText(`#${i}`)).toBeVisible();
+			await expect(page.getByText(`No. ${i}`)).toBeVisible();
 		}
 	});
 
 	test('each ranking has a dish name', async ({ page }) => {
-		// Check at least the first few rankings have names
+		// Check at least the first few rankings have names (rank, name, leader dots, Elo)
 		for (let i = 4; i <= 6; i++) {
-			const rankElement = page.getByText(`#${i}`);
+			const rankElement = page.getByText(`No. ${i}`);
 			const parent = rankElement.locator('..');
-			const nameElement = parent.locator('span').last();
+			const nameElement = parent.locator('span').nth(1);
 			const name = await nameElement.textContent();
 			expect(name).toBeTruthy();
 			expect(name!.length).toBeGreaterThan(0);
@@ -78,8 +81,8 @@ test.describe('Leaderboard Page', () => {
 	});
 
 	test('page has correct heading', async ({ page }) => {
-		// Should have Hall of Fame heading
-		const heading = page.getByRole('heading', { name: 'Hall of Fame' });
+		// Should have The Guide heading
+		const heading = page.getByRole('heading', { name: 'The Guide' });
 		await expect(heading).toBeVisible();
 		await expect(heading).toHaveCount(1);
 	});

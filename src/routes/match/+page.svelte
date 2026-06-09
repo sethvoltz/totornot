@@ -2,6 +2,8 @@
 	import { tick } from 'svelte';
 	import { CRITERIA } from '$lib/criteria';
 	import CriterionSlider from '$lib/components/CriterionSlider.svelte';
+	import StarMark from '$lib/components/StarMark.svelte';
+	import StarDivider from '$lib/components/StarDivider.svelte';
 	import { resolveImageUrl } from '$lib/utils/image';
 	import * as m from '$lib/paraglide/messages';
 	import posthog from 'posthog-js';
@@ -102,37 +104,28 @@
 </script>
 
 <svelte:head>
-	<title>{m.my_spud_title()} — {m.site_title()}</title>
+	<title>{m.my_spud_title()} | {m.site_title()}</title>
 	<meta name="description" content={m.my_spud_subtitle()} />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-5xl px-6 py-8">
-	<div class="mb-8 text-center">
-		<h1 class="text-3xl font-bold md:text-4xl" style="color: var(--text-primary);">
+<div class="mx-auto w-full max-w-5xl px-6 py-10 md:py-16">
+	<div class="mb-10 text-center">
+		<h1 class="page-title">
 			{m.my_spud_title()}
 		</h1>
+		<StarDivider class="mt-5" />
 		{#if showResult}
-			<p class="mt-2 text-lg font-medium" style="color: var(--text-secondary);">
-				Your perfect potato match!
+			<p class="page-subtitle mt-5">
+				{m.my_spud_result_label()}
 			</p>
-			<button
-				type="button"
-				onclick={handleTryAgain}
-				class="mt-2 cursor-pointer text-sm underline opacity-70 hover:opacity-100"
-				style="color: var(--text-secondary);"
-			>
-				Try again
+			<button type="button" onclick={handleTryAgain} class="btn-text mt-2 cursor-pointer text-sm">
+				{m.my_spud_try_again()}
 			</button>
 		{:else if !loading}
-			<p class="mt-2 text-lg" style="color: var(--text-secondary);">
+			<p class="page-subtitle mx-auto mt-5 max-w-prose">
 				{m.my_spud_subtitle()}
 			</p>
-			<button
-				type="button"
-				onclick={openHelp}
-				class="mt-2 text-sm underline opacity-70 hover:opacity-100"
-				style="color: var(--text-secondary);"
-			>
+			<button type="button" onclick={openHelp} class="btn-text mt-2 cursor-pointer text-sm">
 				{m.my_spud_help_title()}
 			</button>
 		{/if}
@@ -141,7 +134,8 @@
 	{#if showHelp}
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div
-			class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+			class="fixed inset-0 flex items-center justify-center bg-black/60 p-4"
+			style="z-index: var(--z-modal-backdrop);"
 			onclick={closeHelp}
 			onkeydown={(e) => e.key === 'Escape' && closeHelp()}
 			role="dialog"
@@ -151,23 +145,18 @@
 			<!-- svelte-ignore a11y_click_events_have_key_events -->
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<div
-				class="max-w-md rounded-lg p-6"
-				style="background-color: var(--bg-secondary);"
+				class="course-card max-w-md p-6"
+				style="z-index: var(--z-modal);"
 				onclick={(e) => e.stopPropagation()}
 			>
-				<h2 class="mb-4 text-xl font-bold" style="color: var(--text-primary);">
+				<h2 class="menu-display mb-4 text-2xl" style="color: var(--ink);">
 					{m.my_spud_help_title()}
 				</h2>
-				<div class="space-y-3 text-sm" style="color: var(--text-secondary);">
+				<div class="space-y-3 text-sm" style="color: var(--ink-secondary);">
 					<p>{m.my_spud_help_body()}</p>
 				</div>
-				<button
-					type="button"
-					onclick={closeHelp}
-					class="mt-6 w-full rounded-lg py-2 font-medium"
-					style="background-color: var(--accent-primary); color: white;"
-				>
-					Got it!
+				<button type="button" onclick={closeHelp} class="btn-primary mt-6 w-full">
+					{m.my_spud_help_close()}
 				</button>
 			</div>
 		</div>
@@ -181,26 +170,22 @@
 		</div>
 
 		{#if error}
-			<div
-				class="mt-6 rounded-lg p-4 text-center"
-				style="background-color: rgba(239, 68, 68, 0.1); color: #ef4444;"
-			>
+			<div class="menu-notice menu-notice-error mx-auto mt-8 max-w-md text-center">
 				{error}
 			</div>
 		{/if}
 
-		<div class="mt-8 text-center">
+		<div class="mt-10 text-center">
 			<button
 				type="button"
 				onclick={handleFindSpud}
 				disabled={!hasActivePreference}
-				class="cursor-pointer rounded-lg px-8 py-4 text-lg font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-50"
-				style="background-color: var(--accent-primary); color: white;"
+				class="btn-primary px-10 py-3.5 text-lg"
 			>
 				{m.my_spud_find_button()}
 			</button>
 			{#if !hasActivePreference}
-				<p class="mt-2 text-sm" style="color: var(--text-muted);">
+				<p class="mt-3 text-sm" style="color: var(--ink-muted);">
 					{m.my_spud_error_no_prefs()}
 				</p>
 			{/if}
@@ -208,12 +193,17 @@
 	{/if}
 
 	{#if loading}
-		<div class="flex min-h-64 flex-col items-center justify-center gap-4">
-			<div
-				class="h-16 w-16 animate-spin rounded-full border-4 border-solid"
-				style="border-color: var(--accent-primary); border-top-color: transparent;"
-			></div>
-			<p style="color: var(--text-secondary);">{m.my_spud_finding()}</p>
+		<div
+			class="flex min-h-64 flex-col items-center justify-center gap-5"
+			role="status"
+			aria-label={m.loading()}
+		>
+			<div class="flex gap-2">
+				<StarMark class="star-mark consulting-star h-6 w-6" />
+				<StarMark class="star-mark consulting-star h-6 w-6" />
+				<StarMark class="star-mark consulting-star h-6 w-6" />
+			</div>
+			<p style="color: var(--ink-secondary);">{m.my_spud_finding()}</p>
 		</div>
 	{/if}
 
@@ -226,7 +216,7 @@
 					? '1'
 					: '0.9'});
 					opacity: {polaroidVisible ? 1 : 0};
-					transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease;
+					transition: transform 0.5s var(--ease-out-quint), opacity 0.4s ease;
 				"
 			>
 				<div class="polaroid-image">
@@ -240,7 +230,7 @@
 					{:else}
 						<div class="flex h-full w-full items-center justify-center">
 							<span
-								style="color: #9ca3af; opacity: {imageVisible
+								style="color: oklch(60% 0.01 25); opacity: {imageVisible
 									? 1
 									: 0}; transition: opacity 1.5s ease;">No image</span
 							>
@@ -251,16 +241,16 @@
 					class="polaroid-caption"
 					style="opacity: {imageVisible ? 1 : 0}; transition: opacity 1s ease 0.5s;"
 				>
-					<h3 class="text-lg font-bold" style="font-family: var(--font-display); color: #111827;">
+					<h3 class="menu-display text-xl" style="color: oklch(20% 0.015 25);">
 						{match.name}
 					</h3>
 					{#if match.description}
-						<p class="mt-1 text-sm" style="color: #374151;">
+						<p class="mt-1 text-sm" style="color: oklch(35% 0.02 25);">
 							{match.description}
 						</p>
 					{/if}
 					{#if match.imageAttribution}
-						<p class="mt-2 text-xs" style="color: #9ca3af;">
+						<p class="mt-2 text-xs" style="color: oklch(55% 0.015 25);">
 							Image: {match.imageAttribution}
 						</p>
 					{/if}
@@ -271,26 +261,49 @@
 </div>
 
 <style>
+	/* A physical print: stays paper-white under both lights */
 	.polaroid {
-		background: white;
+		background: oklch(99% 0.003 90);
 		padding: 18px 18px 20px 18px;
-		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+		box-shadow: 0 4px 24px oklch(0% 0 0 / 25%);
 		max-width: 320px;
 		width: 100%;
-		border-radius: 3px;
+		border-radius: 2px;
 	}
 
 	.polaroid-image {
 		width: 100%;
 		aspect-ratio: 1;
 		overflow: hidden;
-		background-color: #000;
-		border: 3px solid #d1d5db;
+		background-color: oklch(10% 0.005 25);
+		border: 1px solid oklch(85% 0.01 25);
 		border-radius: 2px;
 	}
 
 	.polaroid-caption {
-		padding: 12px 4px 4px 4px;
+		padding: 14px 4px 4px 4px;
 		text-align: center;
+	}
+
+	:global(.consulting-star) {
+		animation: consulting-pulse 1.2s ease-in-out infinite;
+	}
+
+	:global(.consulting-star:nth-child(2)) {
+		animation-delay: 0.2s;
+	}
+
+	:global(.consulting-star:nth-child(3)) {
+		animation-delay: 0.4s;
+	}
+
+	@keyframes consulting-pulse {
+		0%,
+		100% {
+			opacity: 0.25;
+		}
+		50% {
+			opacity: 1;
+		}
 	}
 </style>

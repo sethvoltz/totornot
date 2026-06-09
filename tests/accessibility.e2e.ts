@@ -19,8 +19,8 @@ test.describe('Accessibility', () => {
 		const h1s = page.locator('h1');
 		await expect(h1s).toHaveCount(1);
 
-		// H1 should contain "Hall of Fame"
-		await expect(h1s.first()).toContainText('Hall of Fame');
+		// H1 should contain "The Guide"
+		await expect(h1s.first()).toContainText('The Guide');
 	});
 
 	test('dish cards are keyboard accessible', async ({ page }) => {
@@ -44,7 +44,7 @@ test.describe('Accessibility', () => {
 		const firstCard = dishCards.first();
 
 		// Tab to the dish card - need to find how many tabs to reach it
-		// First tab should reach the Hall of Fame link or a dish card
+		// First tab should reach a masthead link or a dish card
 		await page.keyboard.press('Tab');
 
 		// Check if we're focused on the dish card or can reach it
@@ -114,9 +114,9 @@ test.describe('Accessibility', () => {
 		const siteTitle = page.getByRole('link', { name: /Tot or Not/ });
 		await expect(siteTitle).toBeVisible();
 
-		// Hall of Fame link
-		const hallOfFameLink = page.getByRole('link', { name: /Hall of Fame/ });
-		await expect(hallOfFameLink).toBeVisible();
+		// The Guide (leaderboard) link
+		const guideLink = page.getByRole('link', { name: /The Guide/ });
+		await expect(guideLink).toBeVisible();
 	});
 
 	test('page has lang attribute', async ({ page }) => {

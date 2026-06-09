@@ -58,49 +58,69 @@
 			mediaQuery.removeEventListener('change', handleSystemThemeChange);
 		};
 	});
+
+	function isCurrent(path: string): boolean {
+		return page.url.pathname === path || page.url.pathname.endsWith(path);
+	}
 </script>
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<div
-	class="checkerboard-bg flex min-h-screen flex-col"
-	style="background-color: var(--bg-primary);"
->
-	<header class="diner-header py-5">
-		<nav class="mx-auto flex max-w-5xl items-center justify-between px-6">
+<div class="flex min-h-screen flex-col">
+	<header class="masthead">
+		<nav
+			class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-6 py-5"
+		>
 			<a
 				href={localizeHref('/')}
-				class="neon-sign flex items-center gap-3 text-2xl text-white transition-transform hover:scale-[1.02]"
+				class="menu-display-italic flex items-center gap-2.5 text-2xl text-[var(--on-brand)] no-underline"
 			>
-				<span class="text-3xl">🥔</span>
+				<svg
+					class="h-7 w-7 shrink-0"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.5"
+					aria-hidden="true"
+					xmlns="http://www.w3.org/2000/svg"
+				>
+					<path
+						d="M12 3.2c4.9-.6 8.6 2.9 8.8 7.6.2 5-3.4 9.6-8.3 10-4.9.4-9-3.2-9.3-8C2.9 8.2 7.1 3.8 12 3.2Z"
+					/>
+					<circle cx="9" cy="10" r="0.9" fill="currentColor" stroke="none" />
+					<circle cx="14.5" cy="13.5" r="0.9" fill="currentColor" stroke="none" />
+					<circle cx="11.5" cy="16.5" r="0.9" fill="currentColor" stroke="none" />
+				</svg>
 				<span>{m.site_title()}</span>
 			</a>
-			<div class="flex items-center gap-3">
+			<div class="flex items-center gap-5">
 				<a
 					href={localizeHref('/match')}
-					class="diner-btn px-5 py-2.5 text-sm font-semibold text-white"
+					class="masthead-link"
+					aria-current={isCurrent('/match') ? 'page' : undefined}
 				>
-					💘 {m.find_spud_mate()}
+					{m.find_spud_mate()}
 				</a>
 				<a
 					href={localizeHref('/leaderboard')}
-					class="diner-btn px-5 py-2.5 text-sm font-semibold text-white"
+					class="masthead-link"
+					aria-current={isCurrent('/leaderboard') ? 'page' : undefined}
 				>
-					🏆 {m.hall_of_fame()}
+					{m.hall_of_fame()}
 				</a>
 				{#if mounted}
 					<button
 						type="button"
 						onclick={toggleTheme}
-						class="theme-toggle diner-btn flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-white"
+						class="theme-toggle flex h-9 w-9 cursor-pointer items-center justify-center"
 						aria-label={theme === 'light' ? m.switch_to_dark_mode() : m.switch_to_light_mode()}
 					>
 						{#if theme === 'light'}
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
-								class="h-5 w-5"
+								class="h-4.5 w-4.5"
 								viewBox="0 0 20 20"
 								fill="currentColor"
 							>
@@ -109,7 +129,7 @@
 						{:else}
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
-								class="h-5 w-5"
+								class="h-4.5 w-4.5"
 								viewBox="0 0 20 20"
 								fill="currentColor"
 							>
@@ -126,30 +146,23 @@
 		</nav>
 	</header>
 
-	<main class="flex flex-1 flex-col">
-		{@render children()}
-	</main>
+	<div class="mx-auto flex w-full max-w-6xl flex-1 flex-col px-3 pb-4 md:px-8 md:pb-8">
+		<main class="menu-card flex flex-1 flex-col">
+			{@render children()}
+		</main>
+	</div>
 
-	<footer
-		class="border-t py-6 text-center text-sm"
-		style="border-color: var(--card-border); background-color: var(--bg-secondary); color: var(--text-secondary);"
-	>
+	<footer class="px-6 pt-1 pb-7 text-center text-sm" style="color: var(--on-brand-soft);">
 		<p>
 			{m.footer_tagline()}
-			<span class="mx-2">•</span>
-			<a href={localizeHref('/tip')} class="hover:underline" style="color: var(--accent-primary);">
+			<span class="mx-2" aria-hidden="true">·</span>
+			<a href={localizeHref('/tip')} class="footer-link">
 				{m.suggest_a_dish()}
 			</a>
-			<span class="mx-2">•</span>
-			<a
-				href={localizeHref('/about')}
-				class="hover:underline"
-				style="color: var(--accent-primary);"
-			>
-				About
-			</a>
+			<span class="mx-2" aria-hidden="true">·</span>
+			<a href={localizeHref('/about')} class="footer-link">About</a>
 		</p>
-		<p class="mt-1">&copy; 2026 Tot or Not</p>
+		<p class="mt-1 opacity-75">&copy; 2026 Tot or Not</p>
 	</footer>
 </div>
 
