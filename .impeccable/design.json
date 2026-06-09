@@ -1,0 +1,259 @@
+{
+	"schemaVersion": 2,
+	"generatedAt": "2026-06-09T00:00:00Z",
+	"title": "Design System: Tot or Not",
+	"extensions": {
+		"colorMeta": {
+			"brand": {
+				"role": "primary",
+				"displayName": "Guide Red",
+				"canonical": "oklch(43% 0.16 26)",
+				"dark": "oklch(50% 0.17 26)",
+				"tonalRamp": [
+					"oklch(20% 0.09 26)",
+					"oklch(28% 0.12 26)",
+					"oklch(35% 0.14 26)",
+					"oklch(43% 0.16 26)",
+					"oklch(52% 0.17 26)",
+					"oklch(63% 0.16 26)",
+					"oklch(76% 0.12 26)",
+					"oklch(90% 0.05 26)"
+				]
+			},
+			"backdrop": {
+				"role": "primary",
+				"displayName": "Cover Red",
+				"canonical": "oklch(40% 0.15 26)",
+				"dark": "oklch(22% 0.06 26)",
+				"tonalRamp": [
+					"oklch(17% 0.045 26)",
+					"oklch(24% 0.08 26)",
+					"oklch(33% 0.13 26)",
+					"oklch(40% 0.15 26)",
+					"oklch(50% 0.16 26)",
+					"oklch(62% 0.15 26)",
+					"oklch(76% 0.11 26)",
+					"oklch(90% 0.05 26)"
+				]
+			},
+			"gold": {
+				"role": "secondary",
+				"displayName": "Honors Gold",
+				"canonical": "oklch(60% 0.12 84)",
+				"dark": "oklch(80% 0.125 88)",
+				"tonalRamp": [
+					"oklch(32% 0.06 84)",
+					"oklch(42% 0.08 84)",
+					"oklch(52% 0.11 84)",
+					"oklch(60% 0.12 84)",
+					"oklch(70% 0.125 86)",
+					"oklch(80% 0.125 88)",
+					"oklch(88% 0.1 90)",
+					"oklch(95% 0.05 92)"
+				]
+			},
+			"ink": {
+				"role": "neutral",
+				"displayName": "Ink",
+				"canonical": "oklch(22% 0.02 25)",
+				"dark": "oklch(93% 0.008 25)",
+				"tonalRamp": [
+					"oklch(17% 0.015 25)",
+					"oklch(22% 0.02 25)",
+					"oklch(40% 0.03 25)",
+					"oklch(49% 0.025 25)",
+					"oklch(67% 0.02 25)",
+					"oklch(80% 0.015 25)",
+					"oklch(90% 0.01 25)",
+					"oklch(97.5% 0.004 25)"
+				]
+			},
+			"bg": {
+				"role": "neutral",
+				"displayName": "Card Cream",
+				"canonical": "oklch(97.5% 0.004 25)",
+				"dark": "oklch(17% 0.012 25)",
+				"tonalRamp": [
+					"oklch(14.5% 0.01 25)",
+					"oklch(17% 0.012 25)",
+					"oklch(21% 0.015 25)",
+					"oklch(30% 0.018 25)",
+					"oklch(50% 0.02 25)",
+					"oklch(75% 0.012 25)",
+					"oklch(94.5% 0.007 25)",
+					"oklch(99.4% 0.002 25)"
+				]
+			}
+		},
+		"typographyMeta": {
+			"page-title": {
+				"displayName": "Page Title",
+				"purpose": "One big Bodoni statement per screen, always followed by the star divider."
+			},
+			"menu-display": {
+				"displayName": "Menu Display",
+				"purpose": "Dish names, section headings, podium names, modal titles. The workhorse display role."
+			},
+			"page-subtitle": {
+				"displayName": "Page Subtitle",
+				"purpose": "Italic Bodoni epigraph line under each title."
+			},
+			"body": { "displayName": "Body", "purpose": "All prose and UI copy, capped ~65ch." },
+			"course-label": {
+				"displayName": "Course Label",
+				"purpose": "The only sanctioned uppercase tracked label: course markers, rank numbers."
+			}
+		},
+		"shadows": [
+			{
+				"name": "card-lift",
+				"value": "0 2px 8px oklch(0% 0 0 / 25%), 0 24px 64px oklch(0% 0 0 / 35%)",
+				"purpose": "The menu card floating off the red cover. Used once per screen."
+			},
+			{
+				"name": "course-ambient",
+				"value": "0 1px 2px oklch(22% 0.02 25 / 5%), 0 8px 24px oklch(22% 0.02 25 / 6%)",
+				"purpose": "Course cards and notices at rest."
+			},
+			{
+				"name": "course-hover",
+				"value": "0 2px 6px oklch(22% 0.02 25 / 7%), 0 14px 36px oklch(22% 0.02 25 / 9%)",
+				"purpose": "Course card on hover, paired with a -2px translate."
+			}
+		],
+		"motion": [
+			{
+				"name": "ease-out-quart",
+				"value": "cubic-bezier(0.25, 1, 0.5, 1)",
+				"purpose": "Default easing for state transitions and card hover."
+			},
+			{
+				"name": "ease-out-quint",
+				"value": "cubic-bezier(0.22, 1, 0.36, 1)",
+				"purpose": "The vote slide and winner-stamp choreography."
+			},
+			{
+				"name": "ease-out-expo",
+				"value": "cubic-bezier(0.16, 1, 0.3, 1)",
+				"purpose": "Confident, decisive reveals."
+			}
+		],
+		"breakpoints": [{ "name": "md", "value": "768px" }]
+	},
+	"components": [
+		{
+			"name": "Primary Button",
+			"kind": "button",
+			"refersTo": "button-primary",
+			"description": "The single most important action per screen.",
+			"html": "<button class=\"ds-btn-primary\">Find my match</button>",
+			"css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; background: oklch(43% 0.16 26); color: oklch(97.5% 0.008 25); font-family: 'Hanken Grotesk', system-ui, sans-serif; font-weight: 600; border: none; border-radius: 2px; padding: 12px 32px; cursor: pointer; transition: background-color 0.15s cubic-bezier(0.25,1,0.5,1), transform 0.15s cubic-bezier(0.25,1,0.5,1); } .ds-btn-primary:hover { background: oklch(35% 0.14 26); } .ds-btn-primary:active { transform: scale(0.98); } .ds-btn-primary:focus-visible { outline: 2px solid oklch(43% 0.16 26); outline-offset: 2px; }"
+		},
+		{
+			"name": "Text Button",
+			"kind": "button",
+			"refersTo": "button-text",
+			"description": "Tertiary inline action: start over, inline links.",
+			"html": "<button class=\"ds-btn-text\">Start over</button>",
+			"css": ".ds-btn-text { background: none; border: none; cursor: pointer; color: oklch(43% 0.16 26); font-family: 'Hanken Grotesk', system-ui, sans-serif; font-weight: 500; text-decoration: underline; text-decoration-color: color-mix(in oklch, oklch(43% 0.16 26) 35%, transparent); text-underline-offset: 0.2em; transition: text-decoration-color 0.15s cubic-bezier(0.25,1,0.5,1); } .ds-btn-text:hover { text-decoration-color: oklch(43% 0.16 26); }"
+		},
+		{
+			"name": "Menu Input",
+			"kind": "input",
+			"refersTo": "menu-input",
+			"description": "Text field on the menu card.",
+			"html": "<input class=\"ds-menu-input\" type=\"text\" placeholder=\"e.g., Potato Pizza\" />",
+			"css": ".ds-menu-input { width: 100%; background: oklch(94.5% 0.007 25); border: 1px solid oklch(86% 0.014 25); border-radius: 2px; padding: 10px 16px; color: oklch(22% 0.02 25); font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 1rem; transition: border-color 0.15s cubic-bezier(0.25,1,0.5,1); } .ds-menu-input::placeholder { color: oklch(49% 0.025 25); } .ds-menu-input:focus { outline: none; border-color: oklch(43% 0.16 26); }"
+		},
+		{
+			"name": "Course Card",
+			"kind": "card",
+			"refersTo": "course-card",
+			"description": "The universal content container; lifts on hover.",
+			"html": "<div class=\"ds-course-card\"><div class=\"ds-course-card__body\">Coddle</div></div>",
+			"css": ".ds-course-card { background: oklch(99.4% 0.002 25); border: 1px solid oklch(86% 0.014 25); border-radius: 2px; box-shadow: 0 1px 2px oklch(22% 0.02 25 / 5%), 0 8px 24px oklch(22% 0.02 25 / 6%); transition: box-shadow 0.25s cubic-bezier(0.25,1,0.5,1), transform 0.25s cubic-bezier(0.25,1,0.5,1), border-color 0.25s cubic-bezier(0.25,1,0.5,1); } .ds-course-card:hover { box-shadow: 0 2px 6px oklch(22% 0.02 25 / 7%), 0 14px 36px oklch(22% 0.02 25 / 9%); transform: translateY(-2px); border-color: oklch(70% 0.025 25); } .ds-course-card__body { padding: 1rem; font-family: 'Bodoni Moda', Georgia, serif; font-weight: 650; font-size: 1.125rem; color: oklch(22% 0.02 25); }"
+		},
+		{
+			"name": "Star Divider",
+			"kind": "custom",
+			"refersTo": "star-divider",
+			"description": "The house ornament under every page title: three gold stars flanked by hairlines.",
+			"html": "<div class=\"ds-star-divider\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M12 1.8l2.9 6.2 6.8.8-5 4.7 1.3 6.7L12 16.9l-6 3.3 1.3-6.7-5-4.7 6.8-.8L12 1.8z\"/></svg><svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M12 1.8l2.9 6.2 6.8.8-5 4.7 1.3 6.7L12 16.9l-6 3.3 1.3-6.7-5-4.7 6.8-.8L12 1.8z\"/></svg><svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M12 1.8l2.9 6.2 6.8.8-5 4.7 1.3 6.7L12 16.9l-6 3.3 1.3-6.7-5-4.7 6.8-.8L12 1.8z\"/></svg></div>",
+			"css": ".ds-star-divider { display: flex; align-items: center; justify-content: center; gap: 0.625rem; color: oklch(60% 0.12 84); } .ds-star-divider svg { width: 0.875rem; height: 0.875rem; } .ds-star-divider::before, .ds-star-divider::after { content: ''; width: 3.5rem; border-top: 1px solid oklch(70% 0.025 25); }"
+		},
+		{
+			"name": "Plated Dish Card",
+			"kind": "card",
+			"refersTo": "course-card",
+			"description": "A dish on the tasting page: photo on a hairline mat, name in Bodoni below a divider.",
+			"html": "<div class=\"ds-dish-card\"><div class=\"ds-dish-card__mat\"><div class=\"ds-dish-card__photo\"></div></div><div class=\"ds-dish-card__caption\">Hasselback Potatoes</div></div>",
+			"css": ".ds-dish-card { background: oklch(99.4% 0.002 25); border: 1px solid oklch(86% 0.014 25); border-radius: 2px; box-shadow: 0 1px 2px oklch(22% 0.02 25 / 5%), 0 8px 24px oklch(22% 0.02 25 / 6%); overflow: hidden; width: 240px; } .ds-dish-card__mat { padding: 10px 10px 0; } .ds-dish-card__photo { aspect-ratio: 1; border: 1px solid oklch(86% 0.014 25); background: linear-gradient(135deg, oklch(70% 0.09 60), oklch(55% 0.11 40)); } .ds-dish-card__caption { margin-top: 2px; padding: 0.875rem 1rem; border-top: 1px solid oklch(86% 0.014 25); font-family: 'Bodoni Moda', Georgia, serif; font-weight: 650; font-size: 1.125rem; color: oklch(22% 0.02 25); }"
+		},
+		{
+			"name": "Ledger Row",
+			"kind": "custom",
+			"refersTo": "leader-row",
+			"description": "A Guide ranking line: rank label, dish in Bodoni, dotted leader, Elo as the price.",
+			"html": "<div class=\"ds-ledger-row\"><span class=\"ds-ledger-row__rank\">No. 4</span><span class=\"ds-ledger-row__name\">Nikujaga</span><span class=\"ds-ledger-row__leader\"></span><span class=\"ds-ledger-row__price\">1216</span></div>",
+			"css": ".ds-ledger-row { display: flex; align-items: baseline; font-size: 1.125rem; } .ds-ledger-row__rank { width: 3.5rem; flex-shrink: 0; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.18em; color: oklch(43% 0.16 26); } .ds-ledger-row__name { font-family: 'Bodoni Moda', Georgia, serif; font-weight: 650; color: oklch(22% 0.02 25); } .ds-ledger-row__leader { flex: 1 1 auto; min-width: 1.5rem; margin: 0 0.5rem; transform: translateY(-0.3em); border-bottom: 2px dotted oklch(70% 0.025 25); } .ds-ledger-row__price { flex-shrink: 0; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 1rem; font-variant-numeric: tabular-nums; color: oklch(40% 0.03 25); }"
+		}
+	],
+	"narrative": {
+		"northStar": "The Red Guide",
+		"overview": "The page is not a website about a restaurant guide; the page is the guide. The entire viewport is bound in guide-red, deepening top to bottom like the cover of a leather book, and every screen of content is printed on a single cream menu card lifted off that cover and ringed with an engraved gilt double-frame. Potatoes are treated with the unblinking gravity of a Michelin inspection: dishes are 'courses,' the leaderboard is 'The Guide,' rank is awarded in stars, and the joke is that none of the production value ever once acknowledges that it is about fried potatoes. The reverence is the comedy. This system rejects the generic SaaS landing page, kitsch theme overload, and any split between light and dark; light and dark are one design under two lights, never two designs.",
+		"keyCharacteristics": [
+			"A drenched guide-red backdrop framing one cream menu card per screen.",
+			"Gilt engraved double-frame as the signature container motif.",
+			"Bodoni Moda (Didone display) over Hanken Grotesk (quiet grotesque body).",
+			"Michelin stars as the house currency: rank, dividers, the winner stamp.",
+			"Sharp 2px corners everywhere; this is printed matter, not soft UI.",
+			"Identical structure across light and dark; only lightness shifts."
+		],
+		"rules": [
+			{
+				"name": "The Two-Lights Rule",
+				"body": "Light and dark are the same design under different illumination. Every semantic token exists in both scopes and shifts only lightness; composition, hierarchy, and the red-cover framing never change.",
+				"section": "colors"
+			},
+			{
+				"name": "The Gold-For-Honors Rule",
+				"body": "Gold is earned, never decorative-by-default. It appears on stars, the engraved frame, and dividers. It is forbidden on buttons, body text, and backgrounds.",
+				"section": "colors"
+			},
+			{
+				"name": "The One-Label Rule",
+				"body": "Uppercase tracked small-caps is reserved for the course-label role and used sparingly. It is never sprinkled as an eyebrow above every section; the star divider does that job.",
+				"section": "typography"
+			},
+			{
+				"name": "The Italic-Epigraph Rule",
+				"body": "Subtitles and the winner word are italic Bodoni, never italic sans. Italic display type is the menu's spoken voice.",
+				"section": "typography"
+			},
+			{
+				"name": "The One-Lift Rule",
+				"body": "Only the menu card gets the dramatic shadow. Everything else is flat or quietly ambient. Stacking big shadows turns the page into a pile of floating chrome.",
+				"section": "elevation"
+			}
+		],
+		"dos": [
+			"Do keep the red cover carrying 40%+ of every screen and print content on the single framed menu card.",
+			"Do keep light and dark the same composition; shift only lightness per the Two-Lights Rule.",
+			"Do open every screen with a Page Title plus the three-star divider.",
+			"Do reserve gold for honors and the engraved frame (stars, dividers, podium, winner stamp).",
+			"Do use sharp 2px corners and full 1px hairline borders; this is printed matter.",
+			"Do keep body text on Ink (at least 4.5:1 on the card) and pair Bodoni display against Hanken body on a real serif/sans contrast axis.",
+			"Do give every animation a reduced-motion fallback and use exponential ease-out curves."
+		],
+		"donts": [
+			"Don't ship the generic SaaS landing look: no Inter/system-default body, no gradient buttons, no identical icon-card grids, no hero-metric template.",
+			"Don't pile on kitsch theme decoration (checkerboards, neon glow, chrome).",
+			"Don't let light and dark drift into two different designs; a dimmed room is not an inverted palette.",
+			"Don't use border-left/border-right greater than 1px as a colored accent stripe; full border plus tint instead.",
+			"Don't use gradient text (background-clip: text); emphasis comes from Bodoni weight and size.",
+			"Don't put an uppercase tracked eyebrow above every section; the star divider is the cadence.",
+			"Don't stack dramatic shadows. Only the menu card lifts.",
+			"Don't set body or placeholder text in faint gray. Tinted Ink at full contrast, always."
+		]
+	}
+}

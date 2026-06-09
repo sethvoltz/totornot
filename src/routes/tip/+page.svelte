@@ -1,6 +1,7 @@
 <script lang="ts">
 	import * as m from '$lib/paraglide/messages';
 	import { localizeHref } from '$lib/paraglide/runtime';
+	import StarDivider from '$lib/components/StarDivider.svelte';
 	import posthog from 'posthog-js';
 
 	let dishName = $state('');
@@ -67,57 +68,44 @@
 	<title>{m.tip_line_title()} | {m.site_title()}</title>
 </svelte:head>
 
-<div class="mx-auto max-w-3xl px-6 py-10">
-	<div class="mb-8 text-center">
-		<a
-			href={localizeHref('/')}
-			class="mb-4 inline-block text-sm transition-opacity hover:opacity-70"
-			style="color: var(--text-secondary);"
-		>
-			← Back to voting
+<div class="mx-auto w-full max-w-2xl px-6 py-10 md:py-16">
+	<div class="mb-10 text-center">
+		<a href={localizeHref('/')} class="btn-text mb-4 inline-block text-sm">
+			← {m.back_to_voting()}
 		</a>
-		<h1 class="neon-sign text-4xl md:text-5xl" style="color: var(--text-primary);">
+		<h1 class="page-title">
 			{m.tip_line_title()}
 		</h1>
-		<p class="mt-2 text-lg" style="color: var(--text-secondary);">
+		<StarDivider class="mt-5" />
+		<p class="page-subtitle mx-auto mt-5 max-w-prose">
 			{m.tip_line_subheading()}
 		</p>
 	</div>
 
 	{#if success}
-		<div
-			class="diner-card mb-6 p-4 text-center"
-			style="background-color: var(--bg-secondary); border-left: 4px solid var(--accent-primary);"
-		>
-			<p class="font-medium" style="color: var(--accent-primary);">
+		<div class="menu-notice menu-notice-success mb-6 text-center">
+			<p class="font-medium">
 				{m.tip_success()}
 			</p>
 		</div>
 	{/if}
 
 	{#if error}
-		<div
-			class="diner-card mb-6 p-4 text-center"
-			style="background-color: var(--bg-secondary); border-left: 4px solid #e63946;"
-		>
-			<p class="font-medium" style="color: #e63946;">
+		<div class="menu-notice menu-notice-error mb-6 text-center">
+			<p class="font-medium">
 				{error}
 			</p>
 		</div>
 	{/if}
 
-	<form
-		onsubmit={handleSubmit}
-		class="diner-card p-6"
-		style="background-color: var(--bg-secondary);"
-	>
-		<p class="mb-5 text-center text-sm" style="color: var(--text-muted);">
+	<form onsubmit={handleSubmit} class="course-card p-6 md:p-8">
+		<p class="mb-6 text-center text-sm" style="color: var(--ink-muted);">
 			{m.tip_line_disclaimer()}
 		</p>
 
 		<div class="mb-5">
-			<label for="dishName" class="mb-1.5 block font-medium" style="color: var(--text-primary);">
-				{m.tip_dish_name_label()} <span style="color: var(--accent-primary);">*</span>
+			<label for="dishName" class="mb-1.5 block font-medium" style="color: var(--ink);">
+				{m.tip_dish_name_label()} <span style="color: var(--brand-text);">*</span>
 			</label>
 			<input
 				type="text"
@@ -126,14 +114,13 @@
 				placeholder={m.tip_dish_name_placeholder()}
 				required
 				maxlength={150}
-				class="w-full rounded-lg border px-4 py-2.5 transition-colors focus:outline-none"
-				style="background-color: var(--bg-tertiary); border-color: var(--card-border); color: var(--text-primary);"
+				class="menu-input"
 			/>
 		</div>
 
 		<div class="mb-5">
-			<label for="description" class="mb-1.5 block font-medium" style="color: var(--text-primary);">
-				{m.tip_description_label()} <span style="color: var(--accent-primary);">*</span>
+			<label for="description" class="mb-1.5 block font-medium" style="color: var(--ink);">
+				{m.tip_description_label()} <span style="color: var(--brand-text);">*</span>
 			</label>
 			<textarea
 				id="description"
@@ -142,21 +129,17 @@
 				required
 				maxlength={1000}
 				rows={4}
-				class="w-full rounded-lg border px-4 py-2.5 transition-colors focus:outline-none"
-				style="background-color: var(--bg-tertiary); border-color: var(--card-border); color: var(--text-primary); resize: vertical;"
+				class="menu-input"
+				style="resize: vertical;"
 			></textarea>
 		</div>
 
-		<div class="mb-5">
+		<div class="mb-6">
 			<div class="flex items-center justify-between">
-				<label
-					for="submitterName"
-					class="mb-1.5 block font-medium"
-					style="color: var(--text-primary);"
-				>
+				<label for="submitterName" class="mb-1.5 block font-medium" style="color: var(--ink);">
 					{m.tip_submitter_name_label()}
 				</label>
-				<span class="mb-1.5 text-xs" style="color: var(--text-muted);">
+				<span class="mb-1.5 text-xs" style="color: var(--ink-muted);">
 					{m.tip_submitter_name_disclaimer()}
 				</span>
 			</div>
@@ -166,17 +149,11 @@
 				bind:value={submitterName}
 				placeholder={m.tip_submitter_name_placeholder()}
 				maxlength={100}
-				class="w-full rounded-lg border px-4 py-2.5 transition-colors focus:outline-none"
-				style="background-color: var(--bg-tertiary); border-color: var(--card-border); color: var(--text-primary);"
+				class="menu-input"
 			/>
 		</div>
 
-		<button
-			type="submit"
-			disabled={submitting}
-			class="w-full cursor-pointer rounded-full py-2.5 text-lg font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-50"
-			style="background-color: var(--accent-primary); color: white;"
-		>
+		<button type="submit" disabled={submitting} class="btn-primary w-full py-3 text-lg">
 			{#if submitting}
 				{m.tip_submitting()}
 			{:else}

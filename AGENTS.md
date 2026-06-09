@@ -61,3 +61,15 @@ You MUST use this tool whenever writing Svelte code before sending it to the use
 
 Generates a Svelte Playground link with the provided code.
 After completing the code, ask the user if they want a playground link. Only call this tool after user confirmation and NEVER if code was written to files in their project.
+
+## Design Context
+
+Strategic design context lives in `PRODUCT.md` (read it before any UI/design work). Register: **brand** — the site is a toy people visit for fun; design carries the joy. WCAG 2.1 AA in both themes. The five design principles:
+
+1. **One design, two lights** — light and dark mode are one design under different illumination, never two aesthetics.
+2. **Joy through craft, not props** — personality via typography, motion, color confidence, and copy, not theme decorations.
+3. **The matchup is the stage** — the head-to-head vote is the hero moment; every screen supports dish-vs-dish drama.
+4. **Deadpan gravity** — treat potatoes like a world championship; the polish/absurdity contrast is the joke.
+5. **Zero friction stays sacred** — no accounts, no walls; design never adds steps to the core loop.
+
+The current retro-diner visual identity is **up for grabs** (a glow-up is planned); UX flows are kept. There is no DESIGN.md yet — generate one with `/impeccable document` after the redesign lands.

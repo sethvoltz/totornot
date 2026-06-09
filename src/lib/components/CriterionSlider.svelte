@@ -15,16 +15,16 @@
 	}
 </script>
 
-<div class="diner-card p-4" style="background-color: var(--bg-secondary);">
+<div class="course-card p-4">
 	<div class="mb-2 flex items-center justify-between">
 		<div class="flex items-center gap-2">
-			<span class="font-medium" style="color: var(--text-primary);">
+			<span class="font-medium" style="color: var(--ink);">
 				{criterion.name}
 			</span>
 			<div class="tooltip-container relative">
 				<span
-					class="flex h-5 w-5 cursor-pointer items-center justify-center rounded-full opacity-60 hover:opacity-100"
-					style="background-color: var(--bg-tertiary); color: var(--text-muted);"
+					class="flex h-5 w-5 cursor-pointer items-center justify-center rounded-full opacity-70 hover:opacity-100"
+					style="background-color: var(--surface-sunken); color: var(--ink-muted);"
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -40,22 +40,22 @@
 					</svg>
 				</span>
 				<div
-					class="tooltip absolute bottom-full left-0 mb-2 w-64 rounded-lg px-3 py-2 text-xs shadow-lg"
-					style="background-color: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--card-border);"
+					class="tooltip absolute bottom-full left-0 mb-2 w-64 px-3 py-2 text-xs"
+					style="background-color: var(--surface); color: var(--ink); border: 1px solid var(--rule-strong); border-radius: 2px; box-shadow: var(--shadow-card);"
 				>
 					<p>{criterion.description}</p>
-					<p class="mt-2" style="color: var(--text-muted);">
+					<p class="mt-2" style="color: var(--ink-muted);">
 						<strong>Low:</strong>
 						{criterion.examplesLow.join(', ')}
 					</p>
-					<p style="color: var(--text-muted);">
+					<p style="color: var(--ink-muted);">
 						<strong>High:</strong>
 						{criterion.examplesHigh.join(', ')}
 					</p>
 				</div>
 			</div>
 		</div>
-		<span class="font-mono text-sm" style="color: var(--text-muted);">
+		<span class="text-sm tabular-nums" style="color: var(--ink-muted);">
 			{formatScore(value)}
 		</span>
 	</div>
@@ -68,10 +68,11 @@
 			max="5"
 			step="0.1"
 			bind:value
+			aria-label={criterion.name}
 			class="slider relative z-10 w-full"
 		/>
 	</div>
-	<div class="mt-1 flex justify-between text-xs" style="color: var(--text-secondary);">
+	<div class="mt-1 flex justify-between text-xs" style="color: var(--ink-secondary);">
 		<span>{criterion.scaleLow}</span>
 		<span>{criterion.scaleHigh}</span>
 	</div>
@@ -93,10 +94,11 @@
 		width: 24px;
 		height: 24px;
 		border-radius: 50%;
-		background: var(--accent-primary);
+		background: var(--brand);
+		border: 2px solid var(--surface);
 		cursor: pointer;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-		transition: transform 0.1s;
+		box-shadow: 0 1px 6px oklch(0% 0 0 / 30%);
+		transition: transform 0.1s var(--ease-out-quart);
 		position: relative;
 		z-index: 20;
 	}
@@ -109,10 +111,10 @@
 		width: 24px;
 		height: 24px;
 		border-radius: 50%;
-		background: var(--accent-primary);
+		background: var(--brand);
 		cursor: pointer;
-		border: none;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+		border: 2px solid var(--surface);
+		box-shadow: 0 1px 6px oklch(0% 0 0 / 30%);
 		position: relative;
 		z-index: 20;
 	}
@@ -130,9 +132,10 @@
 		right: 0;
 		top: 50%;
 		transform: translateY(-50%);
-		height: 8px;
-		border-radius: 4px;
-		background: var(--bg-tertiary);
+		height: 6px;
+		border-radius: 3px;
+		background: var(--surface-sunken);
+		border: 1px solid var(--rule);
 	}
 
 	.slider-center-pip {
@@ -143,9 +146,9 @@
 		width: 6px;
 		height: 6px;
 		border-radius: 50%;
-		background: var(--text-muted);
+		background: var(--ink-muted);
 		pointer-events: none;
-		opacity: 0.4;
+		opacity: 0.5;
 		z-index: 5;
 	}
 
@@ -155,7 +158,7 @@
 		transition:
 			opacity 0.2s,
 			visibility 0.2s;
-		z-index: 50;
+		z-index: var(--z-tooltip);
 	}
 
 	.tooltip-container:hover .tooltip,

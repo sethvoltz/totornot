@@ -83,24 +83,24 @@
 
 <div class="mx-auto max-w-3xl px-6 py-8">
 	<div class="mb-8 text-center">
-		<h1 class="text-2xl font-bold" style="color: var(--text-primary);">
+		<h1 class="text-2xl font-bold" style="color: var(--ink);">
 			Rate Dishes — Criteria Matrix Builder
 		</h1>
-		<p class="mt-2" style="color: var(--text-secondary);">
+		<p class="mt-2" style="color: var(--ink-secondary);">
 			{data.progress.rated} of {data.progress.total} dishes have votes &nbsp;·&nbsp;
-			<a href="/rate-dishes" style="color: var(--accent-primary);">Jump to next unrated</a>
+			<a href="/rate-dishes" style="color: var(--brand-text);">Jump to next unrated</a>
 		</p>
 	</div>
 
 	{#if dish}
-		<div class="diner-card mb-8 p-6" style="background-color: var(--bg-secondary);">
-			<div class="mb-4 flex items-center justify-between text-sm" style="color: var(--text-muted);">
+		<div class="course-card mb-8 p-6">
+			<div class="mb-4 flex items-center justify-between text-sm" style="color: var(--ink-muted);">
 				<a
 					href={data.nav.prevId ? `/rate-dishes?id=${data.nav.prevId}` : undefined}
 					class="flex items-center gap-1 rounded px-2 py-1 transition-opacity"
 					class:opacity-30={!data.nav.prevId}
 					class:pointer-events-none={!data.nav.prevId}
-					style="color: var(--text-secondary);"
+					style="color: var(--ink-secondary);"
 				>
 					← Prev
 				</a>
@@ -110,7 +110,7 @@
 					class="flex items-center gap-1 rounded px-2 py-1 transition-opacity"
 					class:opacity-30={!data.nav.nextId}
 					class:pointer-events-none={!data.nav.nextId}
-					style="color: var(--text-secondary);"
+					style="color: var(--ink-secondary);"
 				>
 					Next →
 				</a>
@@ -128,23 +128,23 @@
 					{:else}
 						<div
 							class="flex h-40 w-40 items-center justify-center rounded-lg"
-							style="background-color: var(--bg-tertiary);"
+							style="background-color: var(--surface-sunken);"
 						>
-							<span style="color: var(--text-muted);">No image</span>
+							<span style="color: var(--ink-muted);">No image</span>
 						</div>
 					{/if}
 				</div>
 				<div class="flex-1">
-					<h2 class="text-xl font-semibold" style="color: var(--text-primary);">
+					<h2 class="text-xl font-semibold" style="color: var(--ink);">
 						{dish.name}
 					</h2>
 					{#if dish.description}
-						<p class="mt-2 text-sm" style="color: var(--text-secondary);">
+						<p class="mt-2 text-sm" style="color: var(--ink-secondary);">
 							{dish.description}
 						</p>
 					{/if}
 					{#if dish.imageAttribution}
-						<p class="mt-1 text-xs" style="color: var(--text-muted);">
+						<p class="mt-1 text-xs" style="color: var(--ink-muted);">
 							Image: {dish.imageAttribution}
 						</p>
 					{/if}
@@ -178,18 +178,13 @@
 			{/if}
 
 			<div class="mt-8 text-center">
-				<button
-					type="submit"
-					disabled={submitting}
-					class="rounded-lg px-8 py-3 font-semibold transition-opacity disabled:opacity-50"
-					style="background-color: var(--accent-primary); color: white;"
-				>
+				<button type="submit" disabled={submitting} class="btn-primary px-8 py-3">
 					{submitting ? 'Submitting...' : 'Submit & Next'}
 				</button>
 			</div>
 		</form>
 	{:else}
-		<div class="py-12 text-center" style="color: var(--text-secondary);">
+		<div class="py-12 text-center" style="color: var(--ink-secondary);">
 			<p>No dishes to rate. All dishes have been rated!</p>
 		</div>
 	{/if}

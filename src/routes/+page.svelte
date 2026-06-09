@@ -1,5 +1,7 @@
 <script lang="ts">
 	import DishCard from '$lib/components/DishCard.svelte';
+	import StarMark from '$lib/components/StarMark.svelte';
+	import StarDivider from '$lib/components/StarDivider.svelte';
 	import type { Dish } from '$lib/types';
 	import * as m from '$lib/paraglide/messages';
 	import { resolveImageUrl } from '$lib/utils/image';
@@ -107,7 +109,7 @@
 
 		// Wait for slide animation (CSS transition: 500ms)
 		await delay(500);
-		// Hold with "Winner!" visible
+		// Hold with the winner stamp visible
 		await delay(1000);
 
 		// Fade out
@@ -139,31 +141,28 @@
 	<meta name="description" content={m.voting_subheading()} />
 </svelte:head>
 
-<div class="mx-auto max-w-5xl px-6 py-8 md:py-16">
+<div class="mx-auto w-full max-w-5xl px-6 py-10 md:py-16">
 	<div class="mb-12 text-center">
-		<h1 class="neon-sign text-4xl md:text-5xl" style="color: var(--text-primary);">
+		<h1 class="page-title">
 			{m.voting_heading()}
 		</h1>
-		<p class="mt-4 text-lg" style="color: var(--text-secondary);">
+		<StarDivider class="mt-5" />
+		<p class="page-subtitle mx-auto mt-5 max-w-prose">
 			{m.voting_subheading()}
 		</p>
 	</div>
 
 	{#if rateLimitError}
-		<div
-			class="diner-card mx-auto mb-6 max-w-md p-4 text-center"
-			style="background-color: var(--bg-secondary); border-left: 4px solid #e63946;"
-		>
+		<div class="menu-notice menu-notice-error mx-auto mb-8 max-w-md">
 			<div class="flex items-center justify-between gap-3">
-				<p class="font-medium" style="color: #e63946;">
+				<p class="font-medium">
 					{rateLimitError}
 				</p>
 				<button
 					type="button"
 					onclick={dismissError}
-					class="shrink-0 rounded-full p-1 transition-colors hover:opacity-70"
-					style="color: #e63946;"
-					aria-label="Dismiss"
+					class="shrink-0 cursor-pointer rounded-full p-1 transition-opacity hover:opacity-70"
+					aria-label={m.vote_error_dismiss()}
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -184,14 +183,22 @@
 
 	{#if browser}
 		{#if initialLoading}
-			<div class="flex items-center justify-center py-24">
-				<div
-					class="h-12 w-12 animate-spin rounded-full border-4 border-solid"
-					style="border-color: var(--accent-primary); border-top-color: transparent;"
-					aria-label="Loading"
-				></div>
+			<div
+				class="flex flex-col items-center justify-center gap-4 md:flex-row md:gap-12"
+				role="status"
+				aria-label={m.loading()}
+			>
+				<div class="w-full max-w-60 md:max-w-xs md:flex-1">
+					<DishCard image="" name="" loading />
+				</div>
+				<span class="vs-badge menu-display-italic text-2xl" aria-hidden="true">
+					{m.vs()}
+				</span>
+				<div class="w-full max-w-60 md:max-w-xs md:flex-1">
+					<DishCard image="" name="" loading />
+				</div>
 			</div>
-		{:else}
+		{:else if dishes.length >= 2}
 			<div class="voting-arena" bind:this={arenaEl}>
 				<div
 					class="voting-arena-inner flex flex-col items-center justify-center gap-4 md:flex-row md:gap-12"
@@ -199,15 +206,19 @@
 				>
 					<!-- Left/Top card -->
 					<div
-						class="vote-card-wrap max-w-60 md:max-w-xs md:flex-1"
+						class="vote-card-wrap w-full max-w-60 md:max-w-xs md:flex-1"
 						class:winner={dishes[0].id === winnerId}
 						class:loser={dishes[0].id === loserId}
 						style="--slide-x: {leftSlideX}px; --slide-y: {leftSlideY}px;"
 						data-testid="dish-card-container"
 						bind:this={leftCardEl}
 					>
+						<p class="course-label mb-2.5 text-center">{m.course_first()}</p>
 						{#if dishes[0].id === winnerId}
-							<div class="winner-label">{m.winner()}</div>
+							<div class="winner-label">
+								<StarMark class="winner-star" />
+								<span class="winner-word">{m.winner()}</span>
+							</div>
 						{/if}
 						<DishCard
 							image={resolveImageUrl(dishes[0].imagePath)}
@@ -219,27 +230,28 @@
 						/>
 					</div>
 
-					<!-- VS badge -->
+					<!-- VS mark -->
 					<div class="flex shrink-0 flex-col items-center justify-center">
-						<div
-							class="flex h-12 w-12 items-center justify-center rounded-full md:h-20 md:w-20"
-							style="background-color: var(--bg-secondary);"
-						>
-							<span data-testid="vs-badge" class="vs-badge text-base md:text-2xl">{m.vs()}</span>
-						</div>
+						<span data-testid="vs-badge" class="vs-badge menu-display-italic text-3xl md:text-4xl">
+							{m.vs()}
+						</span>
 					</div>
 
 					<!-- Right/Bottom card -->
 					<div
-						class="vote-card-wrap max-w-60 md:max-w-xs md:flex-1"
+						class="vote-card-wrap w-full max-w-60 md:max-w-xs md:flex-1"
 						class:winner={dishes[1].id === winnerId}
 						class:loser={dishes[1].id === loserId}
 						style="--slide-x: {rightSlideX}px; --slide-y: {rightSlideY}px;"
 						data-testid="dish-card-container"
 						bind:this={rightCardEl}
 					>
+						<p class="course-label mb-2.5 text-center">{m.course_second()}</p>
 						{#if dishes[1].id === winnerId}
-							<div class="winner-label">{m.winner()}</div>
+							<div class="winner-label">
+								<StarMark class="winner-star" />
+								<span class="winner-word">{m.winner()}</span>
+							</div>
 						{/if}
 						<DishCard
 							image={resolveImageUrl(dishes[1].imagePath)}
@@ -252,6 +264,16 @@
 					</div>
 				</div>
 			</div>
+		{:else}
+			<div class="menu-notice mx-auto max-w-md text-center" style="color: var(--ink-secondary);">
+				{m.voting_empty()}
+			</div>
 		{/if}
 	{/if}
 </div>
+
+<style>
+	.vs-badge {
+		color: var(--brand-text);
+	}
+</style>

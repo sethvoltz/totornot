@@ -36,11 +36,8 @@
 <button
 	type="button"
 	data-testid="dish-card"
-	class="diner-card relative flex w-full cursor-pointer flex-col overflow-hidden text-left focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
-	class:neon-glow={selected &&
-		typeof window !== 'undefined' &&
-		document.documentElement.classList.contains('dark')}
-	style={selected ? 'transform: scale(1.02);' : ''}
+	class="course-card relative flex w-full cursor-pointer flex-col overflow-hidden text-left focus-visible:outline-2 focus-visible:outline-offset-2"
+	style={selected ? 'border-color: var(--brand-text); transform: scale(1.02);' : ''}
 	{onclick}
 	aria-pressed={selected}
 	disabled={loading || disabled}
@@ -52,8 +49,8 @@
 	{/if}
 	{#if selected && !loading}
 		<div
-			class="absolute top-3 right-3 z-10 flex h-7 w-7 items-center justify-center rounded-full text-white shadow-lg"
-			style="background-color: var(--accent-primary);"
+			class="absolute top-3 right-3 z-10 flex h-7 w-7 items-center justify-center rounded-full shadow-lg"
+			style="background-color: var(--brand); color: var(--on-brand);"
 		>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
@@ -70,46 +67,45 @@
 		</div>
 	{/if}
 
-	<div
-		class="relative aspect-square w-full overflow-hidden"
-		style="background-color: var(--bg-tertiary);"
-	>
-		{#if loading}
-			<div
-				class="absolute inset-0 animate-pulse"
-				style="background-color: var(--bg-tertiary);"
-			></div>
-		{:else}
-			<img
-				src={image}
-				alt={name}
-				class="h-full w-full object-cover"
-				fetchpriority="high"
-				width="320"
-				height="320"
-				loading="eager"
-			/>
-		{/if}
+	<div class="p-2.5 pb-0">
+		<div
+			class="plate relative aspect-square w-full overflow-hidden"
+			style="background-color: var(--surface-sunken);"
+		>
+			{#if loading}
+				<div
+					class="absolute inset-0 animate-pulse"
+					style="background-color: var(--surface-sunken);"
+				></div>
+			{:else}
+				<img
+					src={image}
+					alt={name}
+					class="h-full w-full object-cover"
+					fetchpriority="high"
+					width="320"
+					height="320"
+					loading="eager"
+				/>
+			{/if}
+		</div>
 	</div>
 
-	<div class="flex items-center justify-between gap-3 p-4">
+	<div class="caption flex items-center justify-between gap-3 px-4 py-3.5">
 		{#if loading}
 			<div
 				class="h-5 w-full animate-pulse rounded"
-				style="background-color: var(--bg-tertiary);"
+				style="background-color: var(--surface-sunken);"
 			></div>
 		{:else}
-			<span
-				class="truncate text-lg font-semibold"
-				style="font-family: var(--font-display); color: var(--text-primary);"
-			>
+			<span class="menu-display truncate text-lg" style="color: var(--ink);">
 				{name}
 			</span>
 			{#if fullDescription()}
 				<div class="tooltip-container relative shrink-0">
 					<span
 						class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full"
-						style="background-color: var(--bg-tertiary); color: var(--text-muted);"
+						style="background-color: var(--surface-sunken); color: var(--ink-muted);"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -125,8 +121,8 @@
 						</svg>
 					</span>
 					<div
-						class="tooltip absolute right-0 bottom-full mb-2 w-48 rounded-lg px-3 py-2 text-sm shadow-lg"
-						style="background-color: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--card-border); white-space: pre-wrap;"
+						class="tooltip absolute right-0 bottom-full mb-2 w-48 px-3 py-2 text-sm"
+						style="background-color: var(--surface); color: var(--ink); border: 1px solid var(--rule-strong); border-radius: 2px; box-shadow: var(--shadow-card); white-space: pre-wrap;"
 					>
 						{fullDescription()}
 					</div>
@@ -137,8 +133,28 @@
 </button>
 
 <style>
-	button:not(:disabled):active {
-		transform: scale(0.98);
+	.plate {
+		border: 1px solid var(--rule);
+	}
+
+	.caption {
+		margin-block-start: 0.125rem;
+	}
+
+	.winner-text-overlay {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 10;
+		pointer-events: none;
+		font-family: var(--font-display);
+		font-style: italic;
+		font-weight: 700;
+		font-size: 2rem;
+		color: oklch(98% 0.005 90);
+		text-shadow: 0 1px 10px oklch(0% 0 0 / 70%);
 	}
 
 	.tooltip-container .tooltip {
@@ -147,7 +163,7 @@
 		transition:
 			opacity 0.2s,
 			visibility 0.2s;
-		z-index: 50;
+		z-index: var(--z-tooltip);
 	}
 
 	.tooltip-container:hover .tooltip,
