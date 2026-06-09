@@ -163,7 +163,23 @@ jobs:
 
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: pnpm exec playwright install --with-deps chromium
+        timeout-minutes: 8
+        run: |
+          # Playwright CDN downloads occasionally stall mid-artifact and hang
+          # with no timeout, wedging the job until the runner-level limit.
+          # Kill a stalled attempt and retry instead of hanging.
+          for attempt in 1 2 3; do
+            echo "::group::Playwright install (attempt $attempt)"
+            if timeout 240 pnpm exec playwright install --with-deps chromium; then
+              echo "::endgroup::"
+              exit 0
+            fi
+            echo "::endgroup::"
+            echo "Attempt $attempt stalled or failed; retrying in 5s..."
+            sleep 5
+          done
+          echo "Playwright install failed after 3 attempts" >&2
+          exit 1
 
       - name: Run Storybook tests
         run: pnpm test:storybook -- --run
@@ -220,7 +236,23 @@ jobs:
 
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: pnpm exec playwright install --with-deps chromium
+        timeout-minutes: 8
+        run: |
+          # Playwright CDN downloads occasionally stall mid-artifact and hang
+          # with no timeout, wedging the job until the runner-level limit.
+          # Kill a stalled attempt and retry instead of hanging.
+          for attempt in 1 2 3; do
+            echo "::group::Playwright install (attempt $attempt)"
+            if timeout 240 pnpm exec playwright install --with-deps chromium; then
+              echo "::endgroup::"
+              exit 0
+            fi
+            echo "::endgroup::"
+            echo "Attempt $attempt stalled or failed; retrying in 5s..."
+            sleep 5
+          done
+          echo "Playwright install failed after 3 attempts" >&2
+          exit 1
 
       - name: Setup D1 database
         run: |
