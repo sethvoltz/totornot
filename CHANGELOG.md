@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.0](https://github.com/sethvoltz/totornot/compare/totornot-v1.12.0...totornot-v1.13.0) (2026-06-09)
+
+
+### Features
+
+* redesign UI as "The Red Guide" haute-cuisine theme ([#93](https://github.com/sethvoltz/totornot/issues/93)) ([e57dcc5](https://github.com/sethvoltz/totornot/commit/e57dcc59c99b9ad51f4cc72076bb3af445567b23))
+
 ## [1.12.0](https://github.com/sethvoltz/totornot/compare/totornot-v1.11.0...totornot-v1.12.0) (2026-04-16)
 
 
