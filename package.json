@@ -83,7 +83,7 @@
 		"wrangler": "^4.81.1"
 	},
 	"dependencies": {
-		"posthog-js": "^1.367.0",
+		"posthog-js": "^1.368.2",
 		"posthog-node": "^5.29.2"
 	}
 }
